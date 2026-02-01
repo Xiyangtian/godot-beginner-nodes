@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godot 4.4 TPS Demo 教学任务</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 任务页面特定样式 */
+        .task-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .task-progress {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .task-progress h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.8rem;
+        }
+
+        .task-jump {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .task-jump input {
+            width: 150px;
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .task-jump input:focus {
+            border-color: #764ba2;
+        }
+
+        .task-jump .jump-btn {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-jump .jump-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-jump .jump-btn:active {
+            transform: translateY(0);
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .task-card.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 1.8rem;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .task-card h4 {
+            color: #764ba2;
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
+        }
+
+        .task-card ol,
+        .task-card ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .task-card li {
+            margin: 10px 0;
+            line-height: 1.7;
+        }
+
+        .task-card code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+        }
+
+        .script-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .script-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .script-header h4 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .copy-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #45a049;
+        }
+
+        .copy-btn.copied {
+            background: #2196F3;
+        }
+
+        .script-content {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .script-content pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .script-content .comment {
+            color: #6a9955;
+        }
+
+        .script-content .keyword {
+            color: #569cd6;
+        }
+
+        .script-content .string {
+            color: #ce9178;
+        }
+
+        .script-content .function {
+            color: #dcdcaa;
+        }
+
+        .script-content .variable {
+            color: #9cdcfe;
+        }
+
+        .script-content .number {
+            color: #b5cea8;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.prev {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .nav-btn.prev:hover:not(:disabled) {
+            background: #c0392b;
+            transform: translateX(-5px);
+        }
+
+        .nav-btn.next {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .nav-btn.next:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateX(5px);
+        }
+
+        .nav-btn.complete {
+            background: #2196F3;
+            color: white;
+        }
+
+        .nav-btn.complete:hover:not(:disabled) {
+            background: #0b7dda;
+        }
+
+        .back-to-home {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .back-to-home a {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #9b59b6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .back-to-home a:hover {
+            background: #8e44ad;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .info-box h5 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #424242;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box h5 {
+            margin: 0 0 10px 0;
+            color: #f57c00;
+        }
+
+        .warning-box p {
+            margin: 5px 0;
+            color: #424242;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .success-box h5 {
+            margin: 0 0 10px 0;
+            color: #388e3c;
+        }
+
+        .success-box p {
+            margin: 5px 0;
+            color: #424242;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .task-container {
+                padding: 10px;
+            }
+
+            .task-card {
+                padding: 20px;
+            }
+
+            .task-card h3 {
+                font-size: 1.4rem;
+            }
+
+            .script-content {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="task-container">
+        <header>
+            <h1>Godot 4.4 TPS Demo 教学任务</h1>
+        </header>
+
+        <!-- 任务进度 -->
+        <div class="task-progress">
+            <h2>任务进度</h2>
+            <p>当前任务：<span id="current-task-name">任务1：创建My文件夹</span></p>
+            <div class="task-jump">
+                <input type="number" id="task-number-input" min="1" max="9" placeholder="输入任务编号(1-9)">
+                <button onclick="jumpToTask()" class="jump-btn">跳转</button>
+            </div>
+        </div>
+
+        <!-- 任务1：创建My文件夹 -->
+        <div class="task-card active" id="task-1">
+            <h3>任务1：创建My文件夹</h3>
+            
+            <h4>任务说明</h4>
+            <p>在开始创建玩家角色前，请先在项目根目录创建一个名为"My"的文件夹。这个文件夹将用来保存你创建的所有场景文件、脚本文件等，以便与项目本身的资源文件区分开。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在项目根目录创建名为"My"的文件夹</li>
+                <li>这个文件夹将用来保存你创建的所有场景文件、脚本文件等，以便与项目本身的资源文件区分开</li>
+                <li>所有你创建的文件（场景、脚本等）都将直接保存在这个文件夹中，不需要创建子文件夹</li>
+            </ol>
+            
+            <div class="success-box">
+                <h5>💡 提示</h5>
+                <p>创建好My文件夹后，你就可以开始创建玩家角色了！</p>
+            </div>
+        </div>
+
+        <!-- 任务2：创建玩家角色 -->
+        <div class="task-card" id="task-2">
+            <h3>任务2：创建玩家角色</h3>
+            
+            <h4>任务说明</h4>
+            <p>创建一个基本的玩家角色，包含角色模型和碰撞体。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在主场景中创建新节点，根节点为<code>CharacterBody3D</code>，命名为<code>Player</code></li>
+                <li>立即保存场景为<code>My/player.tscn</code>（这样即使后续出现问题，也不会丢失已创建的内容）</li>
+                <li>在Player节点下添加<code>MeshInstance3D</code>节点，使用胶囊形状作为临时角色模型</li>
+                <li>添加<code>CollisionShape3D</code>，使用胶囊形状，调整大小匹配角色模型</li>
+                <li>再次保存场景（Ctrl+S或Cmd+S）</li>
+                <li>在Main场景中，通过拖拽<code>My/player.tscn</code>文件到场景树中，实例化Player节点</li>
+                <li>调整Player在Main场景中的位置，放置在合适的位置</li>
+            </ol>
+            
+            <h4>任务2完成后的场景树结构</h4>
+            <pre><code>Player (CharacterBody3D)
+├── MeshInstance3D (胶囊形状作为临时角色模型)
+└── CollisionShape3D (胶囊形状)</code></pre>
+            
+            <div class="info-box">
+                <h5>📋 检查清单</h5>
+                <p>在Inspector面板中检查以下属性：</p>
+                <ul>
+                    <li>Player节点：确保Transform中的Position和Rotation合理设置</li>
+                    <li>CollisionShape3D：Shape属性为CapsuleShape3D，Height和Radius适合角色大小</li>
+                    <li>MeshInstance3D：Mesh属性设置为CapsuleMesh，作为临时角色模型</li>
+                </ul>
+            </div>
+            
+            <div class="warning-box">
+                <h5>⚠️ 注意</h5>
+                <p>所有你创建的文件都应保存在"My"文件夹中。</p>
+            </div>
+        </div>
+
+        <!-- 任务3：添加相机系统 -->
+        <div class="task-card" id="task-3">
+            <h3>任务3：添加相机系统</h3>
+            
+            <h4>任务说明</h4>
+            <p>为玩家角色添加第三人称相机系统。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在Player场景中，右键点击Player节点，选择"添加子节点"</li>
+                <li>选择Node3D类型，命名为<code>CameraController</code></li>
+                <li>在CameraController下添加Camera3D节点，命名为<code>ThirdPersonCamera</code></li>
+                <li>设置ThirdPersonCamera的Transform属性：
+                    <ul>
+                        <li>Position设置为(0, 2, -5)（在角色后方2单位，上方5单位）</li>
+                        <li>Rotation设置为(-20, 180, 0)（向下倾斜20度，朝向角色）</li>
+                    </ul>
+                </li>
+                <li>在Inspector面板中，确保ThirdPersonCamera的Current属性被勾选（设为当前活动相机）</li>
+                <li>保存场景为<code>My/player.tscn</code></li>
+            </ol>
+            
+            <h4>任务3完成后的场景树结构</h4>
+            <pre><code>Player (CharacterBody3D)
+├── MeshInstance3D (角色模型)
+├── CollisionShape3D (胶囊形状)
+└── CameraController (Node3D)
+    └── ThirdPersonCamera (Camera3D)</code></pre>
+            
+            <div class="info-box">
+                <h5>💡 提示</h5>
+                <p>现在运行游戏，你应该能看到第三人称视角下的角色。如果视角不理想，可以调整ThirdPersonCamera的Position值。</p>
+            </div>
+        </div>
+
+        <!-- 任务4：添加玩家移动和跳跃功能 -->
+        <div class="task-card" id="task-4">
+            <h3>任务4：添加玩家移动和跳跃功能</h3>
+            
+            <h4>任务说明</h4>
+            <p>为角色添加基本的移动和跳跃功能。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在Player场景中，选中Player节点</li>
+                <li>在Inspector面板中，点击"附加脚本"按钮</li>
+                <li>选择"新建脚本"，将脚本命名为"player.gd"并保存到My文件夹</li>
+                <li>打开脚本，复制下面的代码并粘贴到脚本中</li>
+                <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                <li>运行游戏测试（F5）</li>
+            </ol>
+            
+            <h4>控制方式</h4>
+            <ul>
+                <li>WASD键：控制角色移动</li>
+                <li>空格键：跳跃</li>
+            </ul>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>player.gd 脚本</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task4')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task4">
+<pre># 任务4：玩家移动和跳跃脚本
+# 实现基本的移动和跳跃功能
+
+class_name PlayerT4
+extends CharacterBody3D
+
+# 移动相关参数
+@export var move_speed := 8.0                    # 角色移动速度
+@export var acceleration := 4.0                  # 移动加速度
+@export var jump_initial_impulse := 12.0         # 初始跳跃力度
+@export var jump_additional_force := 4.5         # 按住跳跃键时的额外跳跃力
+@export var rotation_speed := 12.0               # 角色旋转速度
+@export var stopping_speed := 1.0                # 停止移动的速度阈值
+
+# 物理相关参数
+@export var gravity := -30.0                     # 重力加速度
+
+# 相机引用（需要在场景中设置）
+@onready var camera: Camera3D = $CameraController/ThirdPersonCamera
+
+# 内部变量
+var _move_direction := Vector3.ZERO              # 当前移动方向
+var _last_strong_direction := Vector3.FORWARD     # 上一次的有效移动方向
+var _is_on_floor_buffer := false                 # 地面检测缓冲
+
+func _ready() -> void:
+	# 初始化玩家控制
+	pass
+
+func _physics_process(delta: float) -> void:
+	# 更新地面检测缓冲
+	_is_on_floor_buffer = is_on_floor()
+	
+	# 获取输入
+	_move_direction = _get_camera_oriented_input()
+	
+	# 保存上一次的有效移动方向，用于角色朝向
+	if _move_direction.length() > 0.2:
+		_last_strong_direction = _move_direction.normalized()
+	
+	# 分离Y轴速度，避免重力影响水平移动插值
+	var y_velocity := velocity.y
+	velocity.y = 0.0
+	
+	# 使用插值实现平滑的移动加速
+	velocity = velocity.lerp(_move_direction * move_speed, acceleration * delta)
+	
+	# 如果停止移动且速度很小，直接停止
+	if _move_direction.length() == 0 and velocity.length() < stopping_speed:
+		velocity = Vector3.ZERO
+	
+	# 恢复Y轴速度
+	velocity.y = y_velocity
+	
+	# 应用重力
+	velocity.y += gravity * delta
+	
+	# 处理跳跃
+	var is_just_jumping := Input.is_action_just_pressed("jump") and is_on_floor()
+	var is_air_boosting := Input.is_action_pressed("jump") and not is_on_floor() and velocity.y > 0.0
+	
+	if is_just_jumping:
+		velocity.y += jump_initial_impulse
+	elif is_air_boosting:
+		velocity.y += jump_additional_force * delta
+	
+	# 执行实际移动
+	move_and_slide()
+
+# 根据相机方向获取输入方向
+func _get_camera_oriented_input() -> Vector3:
+	# 获取原始输入（WASD或方向键）
+	var raw_input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
+	var input := Vector3.ZERO
+	# 确保对角线移动不会比轴向移动更快
+	input.x = raw_input.x * sqrt(1.0 - raw_input.y * raw_input.y / 2.0)
+	input.z = raw_input.y * sqrt(1.0 - raw_input.x * raw_input.x / 2.0)
+	
+	# 根据相机方向转换输入
+	input = camera.global_transform.basis * input
+	input.y = 0.0
+	return input.normalized()</pre>
+                </div>
+            </div>
+            
+            <h4>参数调整</h4>
+            <p>你可以在Inspector面板中调整以下参数来改变角色行为：</p>
+            <ul>
+                <li><code>Move Speed</code>：移动速度（默认8.0）</li>
+                <li><code>Acceleration</code>：移动加速度（默认4.0）</li>
+                <li><code>Jump Initial Impulse</code>：初始跳跃力度（默认12.0）</li>
+                <li><code>Jump Additional Force</code>：按住跳跃键时的额外跳跃力（默认4.5）</li>
+                <li><code>Rotation Speed</code>：角色转向速度（默认12.0）</li>
+                <li><code>Stopping Speed</code>：停止移动的速度阈值（默认1.0）</li>
+                <li><code>Gravity</code>：重力加速度（默认-30.0）</li>
+            </ul>
+            
+            <div class="warning-box">
+                <h5>⚠️ 常见问题</h5>
+                <ul>
+                    <li>如果角色无法移动，检查是否正确附加了脚本</li>
+                    <li>如果跳跃不工作，确保角色站在地面上（需要地面碰撞）</li>
+                    <li>如果移动方向相反，检查相机设置和输入映射</li>
+                    <li>如果WASD键不响应，检查项目输入映射设置：
+                        <ol>
+                            <li>进入 项目 → 项目设置 → 输入映射</li>
+                            <li>确保以下动作已映射：
+                                <ul>
+                                    <li>move_up: W键 或 上箭头</li>
+                                    <li>move_down: S键 或 下箭头</li>
+                                    <li>move_left: A键 或 左箭头</li>
+                                    <li>move_right: D键 或 右箭头</li>
+                                    <li>jump: 空格键</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 任务5：添加相机控制功能 -->
+        <div class="task-card" id="task-5">
+            <h3>任务5：添加相机控制功能</h3>
+            
+            <h4>任务说明</h4>
+            <p>为相机添加鼠标控制功能，使玩家能够自由观察周围环境。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在Player场景中，选中CameraController节点</li>
+                <li>在Inspector面板中，点击"附加脚本"按钮</li>
+                <li>选择"新建脚本"，将脚本命名为"camera_controller.gd"并保存到My文件夹</li>
+                <li>打开脚本，复制下面的代码并粘贴到脚本中</li>
+                <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                <li>运行游戏测试（F5）</li>
+            </ol>
+            
+            <h4>控制方式</h4>
+            <ul>
+                <li>鼠标移动：控制相机视角（上下左右）</li>
+                <li>ESC键：显示/隐藏鼠标光标</li>
+            </ul>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>camera_controller.gd 脚本</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task5')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task5">
+<pre># 任务5：相机控制脚本（简化版）
+# 实现鼠标控制相机视角的功能
+
+class_name CameraControllerT5
+extends Node3D
+
+# 相机灵敏度参数
+@export var mouse_sensitivity := 0.002
+@export var invert_mouse_y := false   # 是否反转Y轴（默认false）
+
+# 相机旋转限制（俯仰角）
+@export var tilt_upper_limit := 0.5   # 向上旋转限制（弧度）
+@export var tilt_lower_limit := -0.8  # 向下旋转限制（弧度）
+
+# 相机节点引用
+@onready var camera: Camera3D = $ThirdPersonCamera  # 引用相机节点
+
+# 旋转输入和角度
+var _rotation_input: Vector2
+var _tilt: float = 0.0
+var _rotation: float = 0.0
+
+func _ready() -> void:
+	# 捕获鼠标，隐藏光标
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+func _unhandled_input(event: InputEvent) -> void:
+	# 处理鼠标移动
+	if event is InputEventMouseMotion:
+		_rotation_input = -event.relative * mouse_sensitivity
+		if invert_mouse_y:
+			_rotation_input.y *= -1
+
+func _process(delta: float) -> void:
+	# 更新旋转角度
+	_rotation += _rotation_input.x
+	_tilt += _rotation_input.y
+	_tilt = clamp(_tilt, tilt_lower_limit, tilt_upper_limit)
+	
+	# 重置输入
+	_rotation_input = Vector2.ZERO
+	
+	# 应用旋转到相机控制器
+	global_rotation.y = lerp_angle(global_rotation.y, _rotation, delta * 10.0)
+	camera.rotation.x = lerp(camera.rotation.x, _tilt, delta * 10.0)
+	
+	# 按ESC键释放鼠标
+	if Input.is_action_just_pressed("ui_cancel"):
+		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)</pre>
+                </div>
+            </div>
+            
+            <h4>参数调整</h4>
+            <p>你可以在Inspector面板中调整以下参数来改变相机行为：</p>
+            <ul>
+                <li><code>Mouse Sensitivity</code>：鼠标灵敏度（默认0.002）</li>
+                <li><code>Invert Mouse Y</code>：是否反转Y轴（默认false，不反转）</li>
+                <li><code>Tilt Upper Limit</code>：相机向上旋转限制（默认0.5弧度）</li>
+                <li><code>Tilt Lower Limit</code>：相机向下旋转限制（默认-0.8弧度）</li>
+            </ul>
+            
+            <div class="warning-box">
+                <h5>⚠️ 常见问题</h5>
+                <ul>
+                    <li>如果鼠标无法控制视角，检查是否正确附加了脚本</li>
+                    <li>如果视角翻转，可能是鼠标灵敏度设置过高或者开启了反转Y轴</li>
+                    <li>如果想临时释放鼠标，按ESC键即可</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 任务6：添加死亡检测区域 -->
+        <div class="task-card" id="task-6">
+            <h3>任务6：添加死亡检测区域</h3>
+            
+            <h4>任务说明</h4>
+            <p>添加一个死亡检测区域，当角色掉落到一定高度时自动重置位置。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在Main场景中，添加一个Area3D节点，命名为"DeathZone"</li>
+                <li>为DeathZone节点添加一个CollisionShape3D子节点</li>
+                <li>选择CollisionShape3D，将其形状设置为"WorldBoundaryShape3D"</li>
+                <li>调整WorldBoundaryShape3D的位置，使其位于地形下方（例如Y坐标为-20）</li>
+                <li>在Inspector面板中，为DeathZone节点设置碰撞层：
+                    <ul>
+                        <li><strong>Layer</strong>：取消勾选Layer 1，勾选Layer 2（将DeathZone放在第2层）</li>
+                        <li><strong>Mask</strong>：勾选Layer 1（检测第1层的物体，即玩家）</li>
+                        <li>这样设置后，DeathZone只会检测第1层的物体（玩家），而不会与第2层的物体发生碰撞</li>
+                    </ul>
+                </li>
+                <li>为DeathZone节点附加新脚本，命名为"death_zone.gd"并保存到My文件夹</li>
+                <li>打开脚本，复制下面的代码并粘贴到脚本中</li>
+                <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                <li>运行游戏测试（F5），尝试从地形边缘跳下，测试是否正确重置</li>
+            </ol>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>death_zone.gd 脚本</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task6')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task6">
+<pre># 任务6：死亡检测区域脚本
+# 当玩家掉落到地形下方时，重置玩家位置
+
+class_name DeathZoneT6
+extends Area3D
+
+# 重置位置参数
+@export var reset_position := Vector3(0, 6, -12)  # 角色重置位置
+@export var reset_delay := 0.6  # 重置延迟时间（秒）
+
+# 内部变量
+var _player_ref: CharacterBody3D = null  # 玩家引用
+var _reset_timer: Timer = null  # 重置计时器
+
+func _ready() -> void:
+	# 连接body_entered信号
+	body_entered.connect(_on_body_entered)
+	
+	# 创建并配置重置计时器
+	_reset_timer = Timer.new()
+	_reset_timer.wait_time = reset_delay
+	_reset_timer.one_shot = true
+	_reset_timer.timeout.connect(_reset_player)
+	add_child(_reset_timer)
+
+func _on_body_entered(body: Node3D) -> void:
+	# 检查进入的物体是否是玩家
+	if body is CharacterBody3D and body.has_method("move_and_slide"):
+		_player_ref = body as CharacterBody3D
+		#print("玩家掉落到死亡区域，将在", reset_delay, "秒后重置位置")
+		
+		# 启动重置计时器
+		_reset_timer.start()
+
+func _reset_player() -> void:
+	# 重置玩家位置
+	if _player_ref:
+		_player_ref.global_position = reset_position
+		#print("玩家位置已重置到: ", reset_position)
+		
+		# 重置玩家速度，避免继续下落
+		if _player_ref.has_method("set"):
+			_player_ref.velocity = Vector3.ZERO
+		
+		_player_ref = null</pre>
+                </div>
+            </div>
+            
+            <h4>参数调整</h4>
+            <p>你可以在Inspector面板中调整以下参数：</p>
+            <ul>
+                <li><code>Reset Position</code>：角色重置位置（默认为(0, 6, -12)）</li>
+                <li><code>Reset Delay</code>：重置延迟时间（默认为0.6秒）</li>
+            </ul>
+            
+            <h4>任务6完成后的场景树结构</h4>
+            <pre><code>Main (Node3D)
+├── WorldEnvironment (环境)
+├── 地形相关节点...
+├── Player (CharacterBody3D)【脚本: player.gd】
+└── DeathZone (Area3D)【脚本: death_zone.gd】
+    └── CollisionShape3D (WorldBoundaryShape3D)</code></pre>
+        </div>
+
+        <!-- 任务7：创建交互元素节点和跳跃板（基础版） -->
+        <div class="task-card" id="task-7">
+            <h3>任务7：创建交互元素节点和跳跃板（基础版）</h3>
+            
+            <h4>任务说明</h4>
+            <p>创建一个专门的节点来存放所有交互元素，并实现第一个交互物体——跳跃板。当玩家站在跳跃板上时，按空格键可以跳得更高。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在Main场景中，添加一个Node3D节点，命名为"InteractiveObjects"</li>
+                <li>在InteractiveObjects节点下，添加一个Area3D节点，命名为"JumpPad"</li>
+                <li>为JumpPad添加一个子节点，选择"导入场景"，浏览并选择<code>res://JumpingPad/JumpingPadVisuals/JumpingPadModel.glb</code></li>
+                <li>为JumpPad添加一个CollisionShape3D子节点</li>
+                <li>选择CollisionShape3D，根据模型形状选择合适的碰撞形状：
+                    <ul>
+                        <li>如果模型是圆形，选择"CylinderShape3D"（柱形）</li>
+                        <li>如果模型是方形，选择"BoxShape3D"（方形）</li>
+                        <li>如果模型是其他形状，选择"ConvexPolygonShape3D"（自定义形状）</li>
+                    </ul>
+                </li>
+                <li>调整碰撞形状的大小，使其与跳跃板模型匹配</li>
+                <li>为JumpPad节点附加新脚本，命名为"jump_pad.gd"并保存到My文件夹</li>
+                <li>打开脚本，复制下面的代码并粘贴到脚本中</li>
+                <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                <li>运行游戏测试（F5），尝试站在跳跃板上按空格键跳跃</li>
+            </ol>
+            
+            <div class="info-box">
+                <h5>💡 提示</h5>
+                <p>如果需要频繁调整，可以将JumpPad保存为独立场景，方便专门调整。</p>
+                <p>操作方法：在场景树中右键点击JumpPad节点，选择"保存分支为场景"，保存位置：弹出的对话框中，选择保存到My文件夹，命名为"jump_pad.tscn"</p>
+            </div>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>jump_pad.gd 脚本（基础版）</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task7-jumppad')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task7-jumppad">
+<pre># 任务7：跳跃板脚本（基础版）
+# 使用Area3D检测玩家，但不会阻止玩家穿过
+
+class_name JumpPadT7
+extends Area3D
+
+# 弹射参数
+@export var boost_multiplier := 2.0  # 跳跃增强倍数
+
+# 内部变量
+var _player_in_range := false  # 玩家是否在范围内
+
+# 定义信号
+signal player_entered(jump_pad: JumpPadT7)
+signal player_exited()
+
+func _ready() -> void:
+	# 连接信号
+	body_entered.connect(_on_body_entered)
+	body_exited.connect(_on_body_exited)
+
+func _on_body_entered(body: Node3D) -> void:
+	# 检查进入的物体是否是玩家
+	if body is CharacterBody3D and body.has_method("move_and_slide"):
+		_player_in_range = true
+		# print("玩家进入跳跃板区域")
+		
+		# 尝试连接到玩家的跳跃板处理方法
+		if body.has_method("_on_jump_pad_entered"):
+			player_entered.emit(self)
+			body._on_jump_pad_entered(self)
+		
+		# 播放进入效果
+		_play_enter_effect()
+
+func _on_body_exited(body: Node3D) -> void:
+	# 检查离开的物体是否是玩家
+	if body is CharacterBody3D and body.has_method("move_and_slide"):
+		_player_in_range = false
+		# print("玩家离开跳跃板区域")
+		
+		# 通知玩家离开跳跃板
+		if body.has_method("_on_jump_pad_exited"):
+			player_exited.emit()
+			body._on_jump_pad_exited()
+		
+		# 播放离开效果
+		_play_exit_effect()
+
+func _play_enter_effect() -> void:
+	# 播放进入效果（这里可以添加动画、粒子效果或音效）
+	# 目前只是一个简单的视觉效果示例
+	var model = find_child("JumpingPadModel")
+	if model:
+		# 尝试获取模型的MeshInstance3D子节点
+		var mesh_instances = model.find_children("*", "MeshInstance3D", true, false)
+		if mesh_instances.size() > 0:
+			var mesh = mesh_instances[0] as MeshInstance3D
+			# 临时改变颜色表示激活
+			var highlight_material = StandardMaterial3D.new()
+			highlight_material.albedo_color = Color.CYAN
+			
+			mesh.set_surface_override_material(0, highlight_material)
+
+func _play_exit_effect() -> void:
+	# 播放离开效果
+	var model = find_child("JumpingPadModel")
+	if model:
+		# 尝试获取模型的MeshInstance3D子节点
+		var mesh_instances = model.find_children("*", "MeshInstance3D", true, false)
+		if mesh_instances.size() > 0:
+			var mesh = mesh_instances[0] as MeshInstance3D
+			# 恢复原材质
+			mesh.set_surface_override_material(0, null)</pre>
+                </div>
+            </div>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>player.gd 脚本（更新版 - 支持跳跃板）</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task7-player')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task7-player">
+<pre># 任务7：玩家移动和跳跃脚本（支持跳跃板交互）
+# 实现基本的移动和跳跃功能，并支持与跳跃板的交互
+
+class_name PlayerT7
+extends CharacterBody3D
+
+# 移动相关参数
+@export var move_speed := 8.0                    # 角色移动速度
+@export var acceleration := 4.0                  # 移动加速度
+@export var jump_initial_impulse := 12.0         # 初始跳跃力度
+@export var jump_additional_force := 4.5         # 按住跳跃键时的额外跳跃力
+@export var rotation_speed := 12.0               # 角色旋转速度
+@export var stopping_speed := 1.0                # 停止移动的速度阈值
+
+# 物理相关参数
+@export var gravity := -30.0                     # 重力加速度
+
+# 相机引用（需要在场景中设置）
+@onready var camera: Camera3D = $CameraController/ThirdPersonCamera
+
+# 内部变量
+var _move_direction := Vector3.ZERO              # 当前移动方向
+var _last_strong_direction := Vector3.FORWARD     # 上一次的有效移动方向
+var _is_on_floor_buffer := false                 # 地面检测缓冲
+var _is_on_jump_pad := false                    # 是否在跳跃板上
+var _current_jump_pad: JumpPadT7 = null         # 当前所在的跳跃板引用
+
+func _ready() -> void:
+	# 初始化玩家控制
+	pass
+
+func _physics_process(delta: float) -> void:
+	# 更新地面检测缓冲
+	_is_on_floor_buffer = is_on_floor()
+	
+	# 获取输入
+	_move_direction = _get_camera_oriented_input()
+	
+	# 保存上一次的有效移动方向，用于角色朝向
+	if _move_direction.length() > 0.2:
+		_last_strong_direction = _move_direction.normalized()
+	
+	# 分离Y轴速度，避免重力影响水平移动插值
+	var y_velocity := velocity.y
+	velocity.y = 0.0
+	
+	# 使用插值实现平滑的移动加速
+	velocity = velocity.lerp(_move_direction * move_speed, acceleration * delta)
+	
+	# 如果停止移动且速度很小，直接停止
+	if _move_direction.length() == 0 and velocity.length() < stopping_speed:
+		velocity = Vector3.ZERO
+	
+	# 恢复Y轴速度
+	velocity.y = y_velocity
+	
+	# 应用重力
+	velocity.y += gravity * delta
+	
+	# 处理跳跃
+	var is_just_jumping := Input.is_action_just_pressed("jump") and is_on_floor()
+	var is_air_boosting := Input.is_action_pressed("jump") and not is_on_floor() and velocity.y > 0.0
+	
+	if is_just_jumping:
+		# 如果在跳跃板上，使用增强跳跃
+		if _is_on_jump_pad and _current_jump_pad:
+			# 从跳跃板获取增强倍数
+			var boost_multiplier = _current_jump_pad.boost_multiplier
+			velocity.y += jump_initial_impulse * boost_multiplier
+			print("跳跃板增强跳跃！力度：", jump_initial_impulse * boost_multiplier)
+		else:
+			velocity.y += jump_initial_impulse
+	elif is_air_boosting:
+		velocity.y += jump_additional_force * delta
+	
+	# 执行实际移动
+	move_and_slide()
+
+# 根据相机方向获取输入方向
+func _get_camera_oriented_input() -> Vector3:
+	# 获取原始输入（WASD或方向键）
+	var raw_input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
+	var input := Vector3.ZERO
+	# 确保对角线移动不会比轴向移动更快
+	input.x = raw_input.x * sqrt(1.0 - raw_input.y * raw_input.y / 2.0)
+	input.z = raw_input.y * sqrt(1.0 - raw_input.x * raw_input.x / 2.0)
+	
+	# 根据相机方向转换输入
+	input = camera.global_transform.basis * input
+	input.y = 0.0
+	return input.normalized()
+
+# 进入跳跃板区域
+func _on_jump_pad_entered(jump_pad: JumpPadT7) -> void:
+	_is_on_jump_pad = true
+	_current_jump_pad = jump_pad
+	# print("进入跳跃板区域")
+
+# 离开跳跃板区域
+func _on_jump_pad_exited() -> void:
+	_is_on_jump_pad = false
+	_current_jump_pad = null
+	# print("离开跳跃板区域")</pre>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h5>📚 技术原理说明</h5>
+                <ul>
+                    <li><strong>信号系统</strong>：类似Scratch中的"广播消息"，跳跃板检测到玩家时发送信号，玩家接收信号后执行相应动作</li>
+                    <li><strong>解耦设计</strong>：跳跃板和玩家互相独立，跳跃板只负责检测和通知，玩家负责执行跳跃逻辑</li>
+                    <li><strong>优势</strong>：这种方式让代码更清晰，易于扩展，可以轻松添加更多类型的交互元素</li>
+                </ul>
+            </div>
+            
+            <h4>参数调整</h4>
+            <p>你可以在Inspector面板中调整以下参数：</p>
+            <ul>
+                <li><code>Boost Multiplier</code>：跳跃增强倍数（默认为2.0）
+                    <ul>
+                        <li>可以设置不同值创建不同强度的跳跃板</li>
+                        <li>例如：1.5（弱）、2.0（普通）、3.0（强）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h4>任务7完成后的场景树结构</h4>
+            <pre><code>Main (Node3D)
+├── WorldEnvironment (环境)
+├── 地形相关节点...
+├── Player (CharacterBody3D)【脚本: player.gd !!!更新】
+├── DeathZone (Area3D)【脚本: death_zone.gd】
+│   └── CollisionShape3D (WorldBoundaryShape3D)
+└── InteractiveObjects (Node3D)
+    └── JumpPad (Area3D)【脚本: jump_pad.gd】
+        ├── CollisionShape3D (跳跃板碰撞)
+        └── JumpingPadModel (导入的模型)</code></pre>
+            
+            <div class="warning-box">
+                <h5>⚠️ 常见问题</h5>
+                <p>如果玩家直接穿过跳跃板，这是正常的！Area3D只用于检测，不提供物理碰撞。这个问题将在下一个任务中解决。</p>
+            </div>
+        </div>
+
+        <!-- 任务8：解决跳跃板穿模问题 -->
+        <div class="task-card" id="task-8">
+            <h3>任务8：解决跳跃板穿模问题</h3>
+            
+            <h4>任务说明</h4>
+            <p>修改跳跃板结构，添加物理碰撞体，让玩家能够站在跳跃板上。</p>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li>在Main场景中，选中InteractiveObjects/JumpPad节点</li>
+                <li>在场景树中右键点击JumpPad节点，选择"更改类型"
+                    <ul>
+                        <li>注意：如果右键菜单中没有"更改类型"选项，可能是因为任务7中选择了"保存分支为场景"</li>
+                        <li>解决方法：打开JumpPad场景，然后在JumpPad场景树中右键点击JumpPad节点，选择"更改类型"</li>
+                    </ul>
+                </li>
+                <li>在弹出的对话框中，将类型从"Area3D"改为"StaticBody3D"</li>
+                <li>确认更改后，JumpPad节点图标会发生变化</li>
+                <li>为JumpPad添加一个Area3D子节点，命名为"BoostArea"</li>
+                <li>为BoostArea添加一个CollisionShape3D子节点</li>
+                <li>选择这个CollisionShape3D，将其形状设置为与JumpPad相同的形状，但稍微大一些</li>
+                <li>调整BoostArea的位置，使其稍微向上偏移（例如Y轴+0.1米）</li>
+                <li>为JumpPad节点附加新脚本，命名为"jump_pad.gd"并保存到My文件夹</li>
+                <li>打开脚本，复制下面的代码并粘贴到脚本中</li>
+                <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                <li>运行游戏测试（F5），尝试站在跳跃板上按空格键跳跃</li>
+            </ol>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>jump_pad.gd 脚本（物理版）</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task8-jumppad')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task8-jumppad">
+<pre># 任务8：跳跃板脚本（物理版）
+# 使用StaticBody3D提供物理碰撞，Area3D检测玩家
+
+class_name JumpPadT8
+extends StaticBody3D
+
+# 弹射参数
+@export var boost_multiplier := 2.0  # 跳跃增强倍数
+
+# 内部变量
+var _is_ready := true  # 是否准备就绪
+var _cooldown_timer: Timer = null  # 冷却计时器
+var _player_in_range := false  # 玩家是否在范围内
+
+# 定义信号
+signal player_entered(jump_pad: JumpPadT8)
+signal player_exited()
+
+# 节点引用
+@onready var _boost_area: Area3D = $BoostArea
+
+func _ready() -> void:
+	# 连接信号
+	_boost_area.body_entered.connect(_on_body_entered)
+	_boost_area.body_exited.connect(_on_body_exited)
+	
+	# 创建并配置冷却计时器
+	_cooldown_timer = Timer.new()
+	_cooldown_timer.wait_time = 0.5
+	_cooldown_timer.one_shot = true
+	_cooldown_timer.timeout.connect(_on_cooldown_finished)
+	add_child(_cooldown_timer)
+
+func _on_body_entered(body: Node3D) -> void:
+	# 检查进入的物体是否是玩家
+	if body is CharacterBody3D and body.has_method("move_and_slide"):
+		_player_in_range = true
+		print("玩家进入跳跃板区域")
+		
+		# 尝试连接到玩家的跳跃板处理方法
+		if body.has_method("_on_jump_pad_entered"):
+			player_entered.emit(self)
+			body._on_jump_pad_entered(self)
+		
+		# 播放进入效果
+		_play_enter_effect()
+
+func _on_body_exited(body: Node3D) -> void:
+	# 检查离开的物体是否是玩家
+	if body is CharacterBody3D and body.has_method("move_and_slide"):
+		_player_in_range = false
+		print("玩家离开跳跃板区域")
+		
+		# 通知玩家离开跳跃板
+		if body.has_method("_on_jump_pad_exited"):
+			player_exited.emit()
+			body._on_jump_pad_exited()
+		
+		# 播放离开效果
+		_play_exit_effect()
+
+func _on_cooldown_finished() -> void:
+	# 冷却结束，跳跃板再次准备就绪
+	_is_ready = true
+	print("跳跃板冷却结束")
+
+func _play_enter_effect() -> void:
+	# 播放进入效果（这里可以添加动画、粒子效果或音效）
+	# 目前只是一个简单的视觉效果示例
+	var model = find_child("JumpingPadModel")
+	if model:
+		# 尝试获取模型的MeshInstance3D子节点
+		var mesh_instances = model.find_children("*", "MeshInstance3D", true, false)
+		if mesh_instances.size() > 0:
+			var mesh = mesh_instances[0] as MeshInstance3D
+			# 临时改变颜色表示激活
+			var highlight_material = StandardMaterial3D.new()
+			highlight_material.albedo_color = Color.CYAN
+			
+			mesh.set_surface_override_material(0, highlight_material)
+
+func _play_exit_effect() -> void:
+	# 播放离开效果
+	var model = find_child("JumpingPadModel")
+	if model:
+		# 尝试获取模型的MeshInstance3D子节点
+		var mesh_instances = model.find_children("*", "MeshInstance3D", true, false)
+		if mesh_instances.size() > 0:
+			var mesh = mesh_instances[0] as MeshInstance3D
+			# 恢复原材质
+			mesh.set_surface_override_material(0, null)</pre>
+                </div>
+            </div>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>player.gd 脚本（更新版 - 支持跳跃板）</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task8-player')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task8-player">
+<pre># 任务8：玩家移动和跳跃脚本（支持跳跃板交互）
+# 实现基本的移动和跳跃功能，并支持与跳跃板的交互
+
+class_name PlayerT8
+extends CharacterBody3D
+
+# 移动相关参数
+@export var move_speed := 8.0                    # 角色移动速度
+@export var acceleration := 4.0                  # 移动加速度
+@export var jump_initial_impulse := 12.0         # 初始跳跃力度
+@export var jump_additional_force := 4.5         # 按住跳跃键时的额外跳跃力
+@export var rotation_speed := 12.0               # 角色旋转速度
+@export var stopping_speed := 1.0                # 停止移动的速度阈值
+
+# 物理相关参数
+@export var gravity := -30.0                     # 重力加速度
+
+# 相机引用（需要在场景中设置）
+@onready var camera: Camera3D = $CameraController/ThirdPersonCamera
+
+# 内部变量
+var _move_direction := Vector3.ZERO              # 当前移动方向
+var _last_strong_direction := Vector3.FORWARD     # 上一次的有效移动方向
+var _is_on_floor_buffer := false                 # 地面检测缓冲
+var _is_on_jump_pad := false                    # 是否在跳跃板上
+var _current_jump_pad: JumpPadT8 = null         # 当前所在的跳跃板引用
+
+func _ready() -> void:
+	# 初始化玩家控制
+	pass
+
+func _physics_process(delta: float) -> void:
+	# 更新地面检测缓冲
+	_is_on_floor_buffer = is_on_floor()
+	
+	# 获取输入
+	_move_direction = _get_camera_oriented_input()
+	
+	# 保存上一次的有效移动方向，用于角色朝向
+	if _move_direction.length() > 0.2:
+		_last_strong_direction = _move_direction.normalized()
+	
+	# 分离Y轴速度，避免重力影响水平移动插值
+	var y_velocity := velocity.y
+	velocity.y = 0.0
+	
+	# 使用插值实现平滑的移动加速
+	velocity = velocity.lerp(_move_direction * move_speed, acceleration * delta)
+	
+	# 如果停止移动且速度很小，直接停止
+	if _move_direction.length() == 0 and velocity.length() < stopping_speed:
+		velocity = Vector3.ZERO
+	
+	# 恢复Y轴速度
+	velocity.y = y_velocity
+	
+	# 应用重力
+	velocity.y += gravity * delta
+	
+	# 处理跳跃
+	var is_just_jumping := Input.is_action_just_pressed("jump") and is_on_floor()
+	var is_air_boosting := Input.is_action_pressed("jump") and not is_on_floor() and velocity.y > 0.0
+	
+	if is_just_jumping:
+		# 如果在跳跃板上，使用增强跳跃
+		if _is_on_jump_pad and _current_jump_pad:
+			# 从跳跃板获取增强倍数
+			var boost_multiplier = _current_jump_pad.boost_multiplier
+			velocity.y += jump_initial_impulse * boost_multiplier
+			print("跳跃板增强跳跃！力度：", jump_initial_impulse * boost_multiplier)
+		else:
+			velocity.y += jump_initial_impulse
+	elif is_air_boosting:
+		velocity.y += jump_additional_force * delta
+	
+	# 执行实际移动
+	move_and_slide()
+
+# 根据相机方向获取输入方向
+func _get_camera_oriented_input() -> Vector3:
+	# 获取原始输入（WASD或方向键）
+	var raw_input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
+	var input := Vector3.ZERO
+	# 确保对角线移动不会比轴向移动更快
+	input.x = raw_input.x * sqrt(1.0 - raw_input.y * raw_input.y / 2.0)
+	input.z = raw_input.y * sqrt(1.0 - raw_input.x * raw_input.x / 2.0)
+	
+	# 根据相机方向转换输入
+	input = camera.global_transform.basis * input
+	input.y = 0.0
+	return input.normalized()
+
+# 进入跳跃板区域
+func _on_jump_pad_entered(jump_pad: JumpPadT8) -> void:
+	_is_on_jump_pad = true
+	_current_jump_pad = jump_pad
+	# print("进入跳跃板区域")
+
+# 离开跳跃板区域
+func _on_jump_pad_exited() -> void:
+	_is_on_jump_pad = false
+	_current_jump_pad = null
+	# print("离开跳跃板区域")</pre>
+                </div>
+            </div>
+            
+            <h4>任务8完成后的场景树结构</h4>
+            <pre><code>Main (Node3D)
+├── WorldEnvironment (环境)
+├── 地形相关节点...
+├── Player (CharacterBody3D)【脚本: player.gd !!!更新】
+├── DeathZone (Area3D)【脚本: death_zone.gd】
+│   └── CollisionShape3D (WorldBoundaryShape3D)
+└── InteractiveObjects (Node3D)
+    └── JumpPad (StaticBody3D)【脚本: jump_pad.gd !!!更新】
+        ├── CollisionShape3D (跳跃板碰撞)
+        ├── JumpingPadModel (导入的模型)
+        └── BoostArea (Area3D)
+            └── CollisionShape3D (检测区域)</code></pre>
+        </div>
+
+        <!-- 任务9：创建多个跳跃板 -->
+        <div class="task-card" id="task-9">
+            <h3>任务9：创建多个跳跃板</h3>
+            
+            <h4>任务说明</h4>
+            <p>创建多个跳跃板，组成一个跳跃挑战路线。</p>
+            
+            <h4>操作步骤</h4>
+            
+            <h5>情况一：如果任务7中保存了分支场景</h5>
+            <ol>
+                <li>在Main场景中，选中InteractiveObjects节点</li>
+                <li>按Ctrl+D复制JumpPad节点，然后按Ctrl+V粘贴多个副本</li>
+                <li>调整每个跳跃板的位置，形成一个跳跃路线</li>
+                <li>可以调整每个跳跃板的Boost Multiplier参数，创建不同难度的跳跃</li>
+                <li>保存Main场景（Ctrl+S或Cmd+S）</li>
+                <li>运行游戏测试（F5），尝试连续跳跃通过所有跳跃板</li>
+            </ol>
+            
+            <h5>情况二：如果任务7中没有保存分支场景</h5>
+            <p>请先完成任务8，然后再执行以下步骤：</p>
+            <ol>
+                <li>在Main场景中，选中InteractiveObjects节点</li>
+                <li>按Ctrl+D复制JumpPad节点，然后按Ctrl+V粘贴多个副本</li>
+                <li>调整每个跳跃板的位置，形成一个跳跃路线</li>
+                <li>可以调整每个跳跃板的Boost Multiplier参数，创建不同难度的跳跃</li>
+                <li>保存Main场景（Ctrl+S或Cmd+S）</li>
+                <li>运行游戏测试（F5），尝试连续跳跃通过所有跳跃板</li>
+            </ol>
+            
+            <h4>任务9完成后的场景树结构</h4>
+            <pre><code>Main (Node3D)
+├── WorldEnvironment (环境)
+├── 地形相关节点...
+├── Player (CharacterBody3D)【脚本: player.gd】
+│   ├── MeshInstance3D (角色模型)
+│   ├── CollisionShape3D (胶囊形状)
+│   └── CameraController (Node3D)【脚本: camera_controller.gd】
+│       └── ThirdPersonCamera (Camera3D)
+├── DeathZone (Area3D)【脚本: death_zone.gd】
+│   └── CollisionShape3D (WorldBoundaryShape3D)
+└── InteractiveObjects (Node3D)
+    ├── JumpPad (StaticBody3D)【脚本: jump_pad.gd】
+    ├── JumpPad2 (StaticBody3D)【脚本: jump_pad.gd】
+    └── JumpPad3 (StaticBody3D)【脚本: jump_pad.gd】</code></pre>
+            
+            <div class="info-box">
+                <h5>💡 设计思路</h5>
+                <ul>
+                    <li>通过创建多个跳跃板，学生可以设计不同的跳跃挑战路线</li>
+                    <li>每个跳跃板可以独立设置不同的增强倍数</li>
+                    <li>培养学生的关卡设计思维</li>
+                </ul>
+            </div>
+            
+            <div class="success-box">
+                <h5>🎉 恭喜！</h5>
+                <p>你已经完成了所有9个任务！现在你已经掌握了：</p>
+                <ul>
+                    <li>创建基本的玩家角色系统</li>
+                    <li>实现第三人称相机控制</li>
+                    <li>添加死亡检测和重置功能</li>
+                    <li>创建交互元素（跳跃板）</li>
+                    <li>使用信号系统实现节点间通信</li>
+                    <li>设计简单的游戏关卡</li>
+                </ul>
+                <p>继续探索，你可以添加更多功能，如敌人系统、武器系统、UI系统等！</p>
+            </div>
+        </div>
+
+        <!-- 导航按钮 -->
+        <div class="navigation-buttons">
+            <button class="nav-btn prev" id="prev-btn" onclick="previousTask()" disabled>上一个任务</button>
+            <button class="nav-btn next" id="next-btn" onclick="nextTask()">下一个任务</button>
+        </div>
+
+        <!-- 返回首页 -->
+        <div class="back-to-home">
+            <a href="index.html">返回节点文档首页</a>
+            <button class="copy-prompt-btn" onclick="copyPrompt()">
+                📋 复制AI导师提示词
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 任务数据
+        const tasks = [
+            { id: 1, name: "任务1：创建My文件夹" },
+            { id: 2, name: "任务2：创建玩家角色" },
+            { id: 3, name: "任务3：添加相机系统" },
+            { id: 4, name: "任务4：添加玩家移动和跳跃功能" },
+            { id: 5, name: "任务5：添加相机控制功能" },
+            { id: 6, name: "任务6：添加死亡检测区域" },
+            { id: 7, name: "任务7：创建交互元素节点和跳跃板（基础版）" },
+            { id: 8, name: "任务8：解决跳跃板穿模问题" },
+            { id: 9, name: "任务9：创建多个跳跃板" }
+        ];
+
+        let currentTask = 1;
+        const totalTasks = tasks.length;
+
+        // 初始化
+        function init() {
+            // 从localStorage读取当前任务
+            const savedTask = localStorage.getItem('currentTask');
+            if (savedTask) {
+                currentTask = parseInt(savedTask, 10);
+                // 确保任务编号在有效范围内
+                if (currentTask < 1 || currentTask > totalTasks) {
+                    currentTask = 1;
+                }
+            }
+            
+            updateTaskDisplay();
+        }
+
+        // 更新任务显示
+        function updateTaskDisplay() {
+            // 隐藏所有任务卡片
+            for (let i = 1; i <= totalTasks; i++) {
+                const taskCard = document.getElementById(`task-${i}`);
+                if (taskCard) {
+                    taskCard.classList.remove('active');
+                }
+            }
+
+            // 显示当前任务卡片
+            const currentTaskCard = document.getElementById(`task-${currentTask}`);
+            if (currentTaskCard) {
+                currentTaskCard.classList.add('active');
+            }
+
+            // 更新任务名称
+            const taskNameElement = document.getElementById('current-task-name');
+            if (taskNameElement) {
+                taskNameElement.textContent = tasks[currentTask - 1].name;
+            }
+
+            // 更新按钮状态
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            if (prevBtn) {
+                prevBtn.disabled = currentTask === 1;
+            }
+            
+            if (nextBtn) {
+                if (currentTask === totalTasks) {
+                    nextBtn.textContent = '自己探索一下吧';
+                    nextBtn.classList.add('complete');
+                    nextBtn.disabled = true;
+                } else {
+                    nextBtn.textContent = '下一个任务';
+                    nextBtn.classList.remove('complete');
+                    nextBtn.disabled = false;
+                }
+            }
+
+            // 滚动到任务卡片顶部
+            if (currentTaskCard) {
+                currentTaskCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // 保存当前任务到localStorage
+            localStorage.setItem('currentTask', currentTask);
+        }
+
+        // 上一个任务
+        function previousTask() {
+            if (currentTask > 1) {
+                currentTask--;
+                updateTaskDisplay();
+            }
+        }
+
+        // 下一个任务
+        function nextTask() {
+            if (currentTask < totalTasks) {
+                currentTask++;
+                updateTaskDisplay();
+            }
+        }
+
+        // 跳转到指定任务
+        function jumpToTask() {
+            const input = document.getElementById('task-number-input');
+            const taskNumber = parseInt(input.value, 10);
+            
+            // 验证输入
+            if (isNaN(taskNumber) || taskNumber < 1 || taskNumber > totalTasks) {
+                alert(`请输入有效的任务编号（1-${totalTasks}）`);
+                return;
+            }
+            
+            // 跳转到指定任务
+            currentTask = taskNumber;
+            updateTaskDisplay();
+            
+            // 清空输入框
+            input.value = '';
+        }
+
+        // 复制脚本
+        function copyScript(scriptId) {
+            const scriptElement = document.getElementById(scriptId);
+            if (scriptElement) {
+                const text = scriptElement.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    // 找到对应的复制按钮
+                    const scriptSection = scriptElement.closest('.script-section');
+                    const copyBtn = scriptSection.querySelector('.copy-btn');
+                    
+                    if (copyBtn) {
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '已复制！';
+                        copyBtn.classList.add('copied');
+                        
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                            copyBtn.classList.remove('copied');
+                        }, 2000);
+                    }
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    alert('复制失败，请手动复制脚本内容');
+                });
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // 为输入框添加回车键监听
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('task-number-input');
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        jumpToTask();
+                    }
+                });
+            }
+        });
+        
+        // AI导师提示词内容
+        const aiPromptContent = `# 🎮 **Godot 4.4 通用教学型 AI**
+
+你是一名 **专门为 6年级-初三（11-15岁）学生设计的 Godot 4.4 通用教学指导 AI**。
+
+**学生背景画像：**
+- ✅ 有一定编程基础（Scratch或Python）
+- ❌ **Godot 零基础**（不熟悉节点、信号、场景）
+
+**核心理念：属性配置优先 + 可视化操作 + 代码辅助（不直接生成项目文件）**
+
+你的职责：**为了帮助学生更好的上手godot引擎，你应该更多地引导学生通过Inspector属性配置、场景组装和信号连接来实现游戏功能，而不是直接生成项目文件，在一些无法通过Inspector属性配置实现的功能，你应该帮助学生通过代码来实现，这时候可以生成gdscript文件。**
+
+# 🎯 **教学优先级顺序（智能引导）**
+
+### 1️⃣ **第一优先级：Inspector属性配置**（最推荐）
+- ✅ **位置/旋转/缩放**：Transform数值调整
+- ✅ **物理属性**：重力、速度、碰撞层设置
+- ✅ **视觉属性**：颜色、透明度、材质参数
+- ✅ **行为开关**：启用/禁用节点功能
+
+### 2️⃣ **第二优先级：场景可视化操作**
+- ✅ **节点拖放**：从文件系统拖到场景中
+- ✅ **层级调整**：在场景树中重新排列父子关系
+- ✅ **资源替换**：更换纹理、模型、音效文件
+- ✅ **预制体使用**：实例化已有的.tscn文件
+
+### 3️⃣ **第三优先级：信号连接**
+- ✅ **可视化连接**：用节点界面连接信号
+- ✅ **事件响应**：body_entered、pressed等基础信号
+- ✅ **参数传递**：简单的事件数据传递
+
+### 4️⃣ **第四优先级：代码阅读与简单修改**
+- ✅ **解释现有代码**：说明脚本功能和工作原理
+- ✅ **参数微调**：修改已有变量值、调整数值
+- ✅ **简单逻辑添加**：条件判断或函数调用等等
+
+### 5️⃣ **第五优先级：脚本生成**（最后手段）
+#### **在以下情况生成脚本**：
+- 学生明确表示需要生成代码来实现某个功能
+- 判断学生已理解概念，只需要具体实现
+
+# 🛠️ **核心教学操作流程（参考）**
+
+## 1. Inspector属性配置（最优先）
+\`\`\`
+步骤X：调整[节点名]的[属性名]从[默认值]到[建议值]
+
+操作：
+1. Scene Tree中选中[节点名]
+2. Inspector找到[属性分类]→[属性名]  
+3. 从[默认值]改为[建议值]
+4. 运行测试效果
+
+效果说明：这个属性控制[具体效果]，改为[新值]后会[预期变化]
+\`\`\`
+
+## 2. 场景组装操作（第二优先）
+\`\`\`
+步骤X：在场景中添加[资源名]
+
+操作：
+1. FileSystem（文件系统）中找到[路径]/[资源文件]
+2. 拖到3D视口，或拖到Scene Tree的[父节点]下
+3. Inspector调整Position（位置）和Rotation（旋转）
+
+说明：[资源名]是[功能描述]，放在这里可以[预期效果]
+\`\`\`
+
+## 3. 信号连接（第三优先）
+\`\`\`
+步骤X：连接[信号源]的信号到[接收者]
+
+操作：
+1. Scene Tree选中[信号源节点]
+2. Node（节点）面板找到[信号名]，双击→Connect（连接）
+3. 选择[接收者节点]作为目标，选择[方法名]作为接收函数
+4. 点击Connect（连接）
+
+原理：当[触发条件]时，[信号源]发出[信号名]，[接收者]执行[方法]
+\`\`\`
+
+# 💬 **每轮对话标准输出格式**
+
+## 🎯 **必须执行的三部分输出**
+
+### 第一部分：🎓 教学回复（给学生），生成[对话工作目录]/当前任务.md文件
+
+#### 内容标准结构：
+\`\`\`markdown
+## [步骤标题]
+
+[操作说明，具体清晰]
+
+**操作：**
+1. [具体操作1]
+2. [具体操作2]
+
+**说明：**[为什么要这样做，预期效果]
+
+**测试：**[如何验证是否成功]
+
+**反馈：**[等待学生反馈的引导问题]
+\`\`\`
+
+### 第二部分：📊 操作清单（AI内部记录），生成或更新[对话工作目录]/操作清单.md文件
+
+#### 标准格式：
+\`\`\`markdown
+---
+
+# 📋 操作清单
+
+## ✅ 已完成（已确认执行并反馈结果）
+1. [节点名]→[属性名]：[原值]→[新值]（[效果描述]）
+2. [信号连接]：[源]→[目标]（[功能]）
+
+## 🔄 进行中（已给步骤，等待学生确认）
+1. [当前步骤描述]（等待学生完成）
+
+## ⏸️ 待完成（学生选择跳过或后续再做）
+1. [待完成步骤]（跳过原因：[具体原因]）
+
+## ❓ 遇到的问题（待解决）
+1. [问题描述]：学生反馈[具体问题]
+   └─ 可能原因：[分析原因]
+
+## 🌲 当前场景结构（关键属性标注）
+- Player: CharacterBody3D
+  └─ Speed: [当前值] | Jump Velocity: [当前值]
+- MainCamera: Camera3D
+  └─ Position: [当前值] | FOV: [当前值]
+\`\`\`
+
+#### 状态图标说明：
+- ✅ **已完成**：学生确认执行并反馈结果
+- 🔄 **进行中**：已给出步骤，等待学生确认
+- ⏸️ **待完成**：学生选择跳过，后续再做
+- ❓ **遇到问题**：学生反馈执行有问题
+
+#### 动态调整规则：
+- 学生完成一步 → ✅ 标记完成
+- 学生跳过一步 → ⏸️ 标记待完成
+- 学生遇到问题 → ❓ 记录问题
+- 学生进度快 → 增加🔄步骤
+- 学生进度慢 → 减少🔄步骤，转为n=1模式
+
+### 第三部分：📁 文档管理（必须执行）
+
+#### 在学生执行任务并反馈结果后，执行以下操作
+
+#### 1. 检查当前状态
+\`\`\`
+检查 \`当前任务.md\` 是否存在：
+- 存在 → 备份旧版本 → 生成新版本
+- 不存在 → 直接创建新版本
+\`\`\`
+
+#### 2. 备份旧版本（如果存在）
+\`\`\`
+将旧的 \`当前任务.md\` 移动到 \`任务备份/\`
+按顺序命名为：01.md, 02.md, 03.md...
+\`\`\`
+
+#### 3. 生成新的当前任务文档（也就是第一部分的内容）
+
+
+### 文档结构：
+\`\`\`
+[对话工作目录]/              # AI与学生对话的目录
+├── 当前任务.md              # 最新任务清单 ⭐（学生主要查看）
+├── 任务备份/                # 历史版本文件夹
+│   ├── 01.md               # 第1轮对话后的状态
+│   ├── 02.md               # 第2轮对话后的状态
+│   └── ...                 # 第N轮对话后的状态
+└── 操作清单.md                # 每轮更新的操作清单
+\`\`\`
+
+### 📁 备份管理（如适用）
+- **历史版本**: [数量]个备份文件
+- **最新备份**: \`任务备份/[编号].md\`
+- **备份内容**: 上轮对话的任务状态
+- **备份时间**: [备份时间]
+
+### 🔧 文件系统操作记录
+- ✅ **检查文件存在**: \`当前任务.md\` → [存在/不存在]
+- ✅ **执行备份操作**: 将旧版本移动到\`任务备份/\`
+- ✅ **生成新文档**: 基于本轮对话生成新内容
+- ✅ **更新索引**: 记录所有备份文件和时间
+
+### 💡 使用指导
+**学生应该：**
+1. 📖 **查看文档**: 打开\`当前任务.md\`获取最新指导
+2. 🎯 **执行任务**: 在Godot中按照文档步骤操作
+3. 💬 **反馈结果**: 完成后告诉AI具体操作结果
+4. ❓ **及时求助**: 遇到问题随时询问AI
+
+**AI会：**
+1. 🔄 **自动更新**: 在学生执行任务并反馈结果后，自动更新文档
+2. 📊 **记录进度**: 完整记录学习状态和进度
+3. 🎯 **个性化指导**: 根据学生情况调整教学策略
+4. 📁 **版本管理**: 自动备份历史版本便于回溯
+
+## 🚨 **执行检查清单（每轮必检）**
+
+输出前必须确认已包含：
+- [ ] ✅ **教学回复**: 具体的操作指导给学生，也就是\`当前任务.md\`
+- [ ] ✅ **操作清单**: 详细的进度状态记录，也就是\`操作清单.md\`
+- [ ] ✅ **文档管理**: 完整的文档生成和管理说明
+
+## ⚠️ **重要提醒**
+
+**这是强制要求！每轮对话都必须包含完整的三部分输出！**
+
+**即使学生没有明确要求文档管理，你也必须自动执行！**
+
+**文档管理是教学AI的核心功能，不是可选功能！**
+
+**忽略此要求将导致教学效果大打折扣！**
+
+# ⚡ **教学模式（根据参数n智能调整）**
+
+## 📊 配置参数（可调整）
+
+\`\`\`yaml
+n: 0  # 每次输出的操作步骤数量
+    # 0 = AI自行决定（默认智能模式）
+    # 1 = 每次只给1个步骤（适合完全新手）
+    # 2 = 每次给2个步骤（适合有一定基础）
+    # 3+ = 每次给n个步骤（适合熟练学生）
+\`\`\`
+
+**当前配置：n = 1**
+
+## 🌱 **n=0 - 智能适应模式（默认）**
+AI根据学生理解程度和任务复杂度，智能决定步骤数量：
+\`\`\`
+我们来调整玩家的移动系统。我会根据你的理解程度给出合适的步骤。
+
+首先调整两个核心参数：
+1. Speed = 8.0（移动速度，控制WASD时的移动快慢）
+2. Jump Velocity = 4.5（跳跃力度，空格键的跳跃高度）
+
+这两个是玩家最基础的移动参数，完成后按F5测试，告诉我移动手感如何？
+如果觉得太快或太慢，我们可以再微调。
+\`\`\`
+
+## 🎯 **n=1 - 单步骤模式**
+每次只给1个具体操作，适合完全新手：
+\`\`\`
+步骤1：调整玩家移动速度
+操作：选中Player节点→Inspector→找到Speed属性→从5.0改为8.0
+说明：Speed控制WASD移动时的快慢，8.0是适中的跑酷游戏速度
+测试：按F5运行，试试WASD移动感受
+\`\`\`
+
+## 📚 **n=2 - 双步骤模式**
+每次给2个连续操作，适合有一定基础：
+\`\`\`
+步骤1-2：调整玩家基础移动参数
+1. Speed：选中Player→Inspector→Speed→5.0改为8.0（控制WASD移动速度）
+2. Jump Velocity：找到Jump Velocity→4.5改为6.0（控制空格跳跃高度）
+
+测试：F5运行，试试：
+- 按住WASD移动，感受速度变化
+- 按空格跳跃，观察跳跃高度
+反馈：速度感觉如何？需要再调整吗？
+\`\`\`
+
+## 🚀 **n≥3 - 多步骤模式**
+每次给3个或更多步骤，适合熟练学生：
+\`\`\`
+步骤1-4：完整配置玩家移动系统
+1. Speed：Player→Inspector→Speed→5.0→8.0（基础移动速度）
+2. Jump Velocity：Jump Velocity→4.5→6.0（跳跃力度）
+3. Fall Speed：找到Fall Speed→0.0→1.0（下落速度，让跳跃更真实）
+4. Max Steps：Max Steps→4→6（最大台阶高度，可跳上更高平台）
+
+高级调整（可选）：
+- Acceleration：加速度，控制启动时的反应速度
+- Friction：摩擦力，控制停止时的滑行距离
+
+测试建议：
+- 创建不同高度的平台测试跳跃
+- 试试连续跳跃的手感
+- 调整直到找到最适合的数值
+\`\`\`
+
+# ⏭️ **跳过步骤处理机制**
+
+## 识别学生跳过行为的信号
+- 无视当前步骤，直接问新问题："怎么给金币换颜色？"
+- 明确表示困难："这个太难了，我想先做别的"
+- 模糊回应后转移：回复"好的"马上问不相关问题
+- 长时间不回应当前步骤
+
+## 标准处理流程
+
+### 步骤1：绝不自动标记完成
+**严禁**将跳过的步骤标记为✅已完成
+
+### 步骤2：明确标记为待完成
+在清单中标记为⏸️，并记录跳过原因：
+\`\`\`
+好的，我们可以先跳过连接信号这一步。
+
+⏸️ 压力板开门功能暂时不会工作
+✅ 但你可以继续学习其他内容，比如给金币换颜色
+
+操作清单我会记录：
+- 【待完成】连接 PressurePlate.activated 到 Door.open
+  └─ 跳过原因："想先学材质和颜色"
+
+现在来学习换颜色：
+1. 选中 Coin 节点...
+\`\`\`
+
+### 步骤3：告知功能依赖关系
+\`\`\`
+需要告诉你：跳过这步会导致
+- 压力板无法自动开门（但你可以手动测试门动画）
+- 游戏通关逻辑不完整
+
+建议：完成当前的颜色学习后，我们再回来做信号连接，
+因为这是游戏完整体验的关键部分。
+\`\`\`
+
+### 步骤4：提供替代测试方案
+\`\`\`
+替代方案：你可以先手动测试门是否能打开
+1. 选中 Door 节点
+2. Inspector 中找到 AnimationPlayer
+3. 点击 "open" 动画的播放按钮
+
+这样你可以看到门打开的动画效果，信号连接我们之后再做。
+\`\`\`
+
+### 步骤5：定期友好提醒
+每3-5轮对话后提醒：
+\`\`\`
+顺便提醒，你还有以下待完成的任务：
+⏸️ 连接 PressurePlate 信号到 Door（我们3轮对话前跳过了）
+
+现在想回来完成它吗？还是继续当前的学习？
+\`\`\`
+
+# 📦 **Godot 4.4 版本兼容性**
+
+## 必须熟悉的4.4特性
+
+### ✅ **推荐使用的4.4功能**
+- **CharacterBody3D**：新版角色控制器，替代KinematicBody
+- **NavigationRegion3D**：改进的导航系统，更简单的路径寻找
+- **AnimationMixer**：统一的动画混合系统
+- **Signal连接可视化**：Node面板中的图形化连接
+- **改进的Inspector**：更好的属性分类和搜索
+
+### ⚠️ **4.4中的变化（注意兼容性）**
+- **get_node()路径**：使用%唯一节点名更稳定
+- **信号语法**：使用\`signal_name.connect()\`而非\`connect("signal_name")\`
+- **输入处理**：推荐使用\`Input.is_action_pressed()\`而非直接按键检测
+- **碰撞层**：使用Layer和Mask命名，更清晰
+
+## 避免使用的过时概念
+
+### ❌ **4.4中不推荐的老方法**
+- **KinematicBody3D**：已废弃，用CharacterBody3D替代
+- **move_and_slide()**：老版本移动函数，用新版内置移动
+- **直接节点路径**：如\`get_node("../Sibling")\`，容易因结构调整失效
+- **_process()中大量计算**：推荐使用_physics_process()处理物理相关
+
+### ✅ **推荐的新方法**
+- **%唯一节点名**：\`%Player\`、\`%MainCamera\`，不受层级变化影响
+- **内置移动函数**：CharacterBody3D的move_and_slide()自动处理碰撞
+- **信号连接面板**：可视化连接，减少代码错误
+- **组件化设计**：使用Area3D、CollisionShape3D等专门节点
+
+## 版本特定指导
+
+### 当学生遇到老版本教程时
+\`\`\`
+你看到的教程可能是老版本的，我来告诉你4.4中的变化：
+- 老版本用KinematicBody3D，新版本用CharacterBody3D
+- 移动函数也有改进，现在更简单
+- 信号连接可以用可视化界面，不需要写代码
+
+我们按4.4的新方法来，这样更稳定、更简单。
+\`\`\`
+
+### 跨版本兼容性建议
+\`\`\`
+如果你想让项目在不同Godot版本都能运行：
+1. 使用推荐的4.4新特性（更稳定）
+2. 避免使用标记为deprecated的功能
+3. 信号连接用可视化方式，减少版本依赖
+4. 多用Inspector属性，少用版本特定的代码
+\`\`\``;
+
+        // 复制AI导师提示词
+        function copyPrompt() {
+            navigator.clipboard.writeText(aiPromptContent).then(() => {
+                const btn = document.querySelector('.copy-prompt-btn');
+                if (btn) {
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ 已复制！';
+                    btn.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制提示词内容');
+            });
+        }
+    </script>
+</body>
+</html>
