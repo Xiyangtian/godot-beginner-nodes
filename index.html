@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godot 4.4 TPS Demo 节点与属性知识点</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+        <h2>Godot 节点导航</h2>
+        <ul>
+            <li class="category">物理节点类型</li>
+            <li><a href="#characterbody3d">CharacterBody3D</a></li>
+            <li><a href="#area3d">Area3D</a></li>
+            <li><a href="#staticbody3d">StaticBody3D</a></li>
+            
+            <li class="category">3D显示节点</li>
+            <li><a href="#mesh-instance3d">MeshInstance3D</a></li>
+            <li><a href="#camera3d">Camera3D</a></li>
+            
+            <li class="category">UI节点</li>
+            <li><a href="#canvas-layer">CanvasLayer</a></li>
+            <li><a href="#colorrect">ColorRect</a></li>
+            
+            <li class="category">动画节点</li>
+            <li><a href="#animation-player">AnimationPlayer</a></li>
+            <li><a href="#animation-tree">AnimationTree</a></li>
+            
+            <li class="category">音频节点</li>
+            <li><a href="#audio-stream-player3d">AudioStreamPlayer3D</a></li>
+            
+            <li class="category">碰撞形状节点</li>
+            <li><a href="#collision-shape3d">CollisionShape3D</a></li>
+            <li><a href="#shape-cast3d">ShapeCast3D</a></li>
+            <li><a href="#collision-polygon3d">CollisionPolygon3D</a></li>
+            
+            <li class="category">环境节点</li>
+            <li><a href="#world-environment">WorldEnvironment</a></li>
+            <li><a href="#directional-light3d">DirectionalLight3D</a></li>
+            
+            <li class="category">输入节点</li>
+            <li><a href="#input-event">InputEvent</a></li>
+            
+            <li class="category">资源节点</li>
+            <li><a href="#packed-scene">PackedScene</a></li>
+            <li><a href="#material">Material</a></li>
+            
+            <li class="category">使用技巧</li>
+            <li><a href="#organization-tips">节点组织原则</a></li>
+            <li><a href="#optimization-tips">性能优化建议</a></li>
+            <li><a href="#problem-solving-tips">常见问题解决</a></li>
+            
+            <li class="category">学习建议</li>
+            <li><a href="#learning-advice">学习建议</a></li>
+        </ul>
+    </aside>
+    
+    <div class="main-container">
+        <div class="container">
+        <header>
+            <h1>Godot 4.4 TPS Demo 节点与属性知识点</h1>
+        </header>
+
+        <main>
+            <!-- 物理节点类型 -->
+            <section id="physics-nodes" class="section">
+                <h2>物理节点类型</h2>
+                
+                <!-- CharacterBody3D -->
+                <article id="characterbody3d" class="node-card">
+                    <h3>CharacterBody3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>CharacterBody3D是专为角色控制设计的物理体，它不会自动响应物理力，而是通过代码控制移动。它内置了碰撞检测和滑动功能，非常适合玩家角色和NPC。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>velocity</code></td>
+                                    <td>Vector3</td>
+                                    <td>Vector3(0,0,0)</td>
+                                    <td>移动速度向量，每帧设置，由move_and_slide()使用</td>
+                                </tr>
+                                <tr>
+                                    <td><code>motion_mode</code></td>
+                                    <td>int</td>
+                                    <td>MOTION_MODE_GROUNDED</td>
+                                    <td>移动模式：地面/浮动/飞行</td>
+                                </tr>
+                                <tr>
+                                    <td><code>up_direction</code></td>
+                                    <td>Vector3</td>
+                                    <td>Vector3(0,1,0)</td>
+                                    <td>定义"上方"方向，用于地面检测</td>
+                                </tr>
+                                <tr>
+                                    <td><code>floor_max_angle</code></td>
+                                    <td>float</td>
+                                    <td>0.785(45°)</td>
+                                    <td>可行走最大坡度角度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>floor_snap_length</code></td>
+                                    <td>float</td>
+                                    <td>0.1</td>
+                                    <td>贴地距离，防止角色离开地面</td>
+                                </tr>
+                                <tr>
+                                    <td><code>wall_min_slide_angle</code></td>
+                                    <td>float</td>
+                                    <td>0.262(15°)</td>
+                                    <td>墙壁滑动最小角度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>platform_on_leave</code></td>
+                                    <td>int</td>
+                                    <td>PLATFORM_ON_LEAVE_ADD_VELOCITY</td>
+                                    <td>离开平台时的行为</td>
+                                </tr>
+                                <tr>
+                                    <td><code>platform_floor_layers</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>平台碰撞层</td>
+                                </tr>
+                                <tr>
+                                    <td><code>platform_wall_layers</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>平台墙壁碰撞层</td>
+                                </tr>
+                                <tr>
+                                    <td><code>slide_on_ceiling</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>是否在碰到天花板时滑动</td>
+                                </tr>
+                                <tr>
+                                    <td><code>max_slides</code></td>
+                                    <td>int</td>
+                                    <td>6</td>
+                                    <td>每帧最大碰撞检测次数</td>
+                                </tr>
+                                <tr>
+                                    <td><code>floor_block_on_wall</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>墙壁是否阻止地面检测</td>
+                                </tr>
+                                <tr>
+                                    <td><code>floor_constant_speed</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>在斜坡上是否保持恒定速度</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用子节点</h4>
+                        <div class="subnodes-grid">
+                            <a href="#collision-shape3d" class="subnode-link">CollisionShape3D</a>
+                            <a href="#mesh-instance3d" class="subnode-link">MeshInstance3D</a>
+                            <a href="#animation-player" class="subnode-link">AnimationPlayer</a>
+                            <a href="#animation-tree" class="subnode-link">AnimationTree</a>
+                            <a href="#camera3d" class="subnode-link">Camera3D</a>
+                            <a href="#area3d" class="subnode-link">Area3D</a>
+                            <a href="#audio-stream-player3d" class="subnode-link">AudioStreamPlayer3D</a>
+                            <a href="#shape-cast3d" class="subnode-link">ShapeCast3D</a>
+                        </div>
+                        
+                        <h4>常用方法</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>方法名</th>
+                                    <th>参数</th>
+                                    <th>返回值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>move_and_slide()</code></td>
+                                    <td>无</td>
+                                    <td>无</td>
+                                    <td>根据velocity移动并处理碰撞</td>
+                                </tr>
+                                <tr>
+                                    <td><code>is_on_floor()</code></td>
+                                    <td>无</td>
+                                    <td>bool</td>
+                                    <td>是否在地面上</td>
+                                </tr>
+                                <tr>
+                                    <td><code>is_on_wall()</code></td>
+                                    <td>无</td>
+                                    <td>bool</td>
+                                    <td>是否在墙上</td>
+                                </tr>
+                                <tr>
+                                    <td><code>is_on_ceiling()</code></td>
+                                    <td>无</td>
+                                    <td>bool</td>
+                                    <td>是否在天花板上</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_floor_normal()</code></td>
+                                    <td>无</td>
+                                    <td>Vector3</td>
+                                    <td>获取地面法线</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_wall_normal()</code></td>
+                                    <td>无</td>
+                                    <td>Vector3</td>
+                                    <td>获取墙壁法线</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_last_slide_collision()</code></td>
+                                    <td>无</td>
+                                    <td>KinematicCollision3D</td>
+                                    <td>获取最后一次碰撞信息</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_slide_collision_count()</code></td>
+                                    <td>无</td>
+                                    <td>int</td>
+                                    <td>获取碰撞次数</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+                
+                <!-- Area3D -->
+                <article id="area3d" class="node-card">
+                    <h3>Area3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>Area3D用于检测物体进入/离开某个区域，不产生物理反应，非常适合触发器、拾取物、伤害区域等功能。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>monitoring</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>是否监控进入此区域的物体</td>
+                                </tr>
+                                <tr>
+                                    <td><code>monitorable</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>是否可被其他Area3D监控</td>
+                                </tr>
+                                <tr>
+                                    <td><code>space_override</code></td>
+                                    <td>int</td>
+                                    <td>SPACE_OVERRIDE_DISABLED</td>
+                                    <td>空间覆盖模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gravity_point</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否使用点重力</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gravity_point_center</code></td>
+                                    <td>Vector3</td>
+                                    <td>Vector3(0,0,0)</td>
+                                    <td>点重力中心</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gravity_point_unit_distance</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>点重力单位距离</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gravity_direction</code></td>
+                                    <td>Vector3</td>
+                                    <td>Vector3(0,-1,0)</td>
+                                    <td>重力方向</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gravity</code></td>
+                                    <td>float</td>
+                                    <td>9.8</td>
+                                    <td>重力强度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>linear_damp</code></td>
+                                    <td>float</td>
+                                    <td>0.1</td>
+                                    <td>线性阻尼</td>
+                                </tr>
+                                <tr>
+                                    <td><code>angular_damp</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>角阻尼</td>
+                                </tr>
+                                <tr>
+                                    <td><code>priority</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>优先级</td>
+                                </tr>
+                                <tr>
+                                    <td><code>collision_layer</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>碰撞层</td>
+                                </tr>
+                                <tr>
+                                    <td><code>collision_mask</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>碰撞掩码</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用子节点</h4>
+                        <div class="subnodes-grid">
+                            <a href="#collision-shape3d" class="subnode-link">CollisionShape3D</a>
+                            <a href="#collision-polygon3d" class="subnode-link">CollisionPolygon3D</a>
+                            <a href="#audio-stream-player3d" class="subnode-link">AudioStreamPlayer3D</a>
+                        </div>
+                        
+                        <h4>常用信号</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>信号名</th>
+                                    <th>参数</th>
+                                    <th>触发时机</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>body_entered</code></td>
+                                    <td>Node body</td>
+                                    <td>物理体进入区域</td>
+                                </tr>
+                                <tr>
+                                    <td><code>body_exited</code></td>
+                                    <td>Node body</td>
+                                    <td>物理体离开区域</td>
+                                </tr>
+                                <tr>
+                                    <td><code>area_entered</code></td>
+                                    <td>Area2D area</td>
+                                    <td>另一个Area3D进入</td>
+                                </tr>
+                                <tr>
+                                    <td><code>area_exited</code></td>
+                                    <td>Area2D area</td>
+                                    <td>另一个Area3D离开</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+                
+                <!-- StaticBody3D -->
+                <article id="staticbody3d" class="node-card">
+                    <h3>StaticBody3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>StaticBody3D用于静态物体，如墙壁、地板、障碍物等，不会移动，但可以与其他物理体产生碰撞。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>physics_material_override</code></td>
+                                    <td>PhysicsMaterial</td>
+                                    <td>null</td>
+                                    <td>覆盖物理材质</td>
+                                </tr>
+                                <tr>
+                                    <td><code>constant_linear_velocity</code></td>
+                                    <td>Vector3</td>
+                                    <td>Vector3(0,0,0)</td>
+                                    <td>常量线性速度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>constant_angular_velocity</code></td>
+                                    <td>Vector3</td>
+                                    <td>Vector3(0,0,0)</td>
+                                    <td>常量角速度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>collision_layer</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>碰撞层</td>
+                                </tr>
+                                <tr>
+                                    <td><code>collision_mask</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>碰撞掩码</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用子节点</h4>
+                        <div class="subnodes-grid">
+                            <a href="#collision-shape3d" class="subnode-link">CollisionShape3D</a>
+                            <a href="#collision-polygon3d" class="subnode-link">CollisionPolygon3D</a>
+                            <a href="#mesh-instance3d" class="subnode-link">MeshInstance3D</a>
+                        </div>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 3D显示节点 -->
+            <section id="display-nodes" class="section">
+                <h2>3D显示节点</h2>
+                
+                <!-- MeshInstance3D -->
+                <article id="mesh-instance3d" class="node-card">
+                    <h3>MeshInstance3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>MeshInstance3D用于在3D空间中显示网格模型，是显示3D对象的基本节点。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>mesh</code></td>
+                                    <td>Mesh</td>
+                                    <td>null</td>
+                                    <td>网格资源</td>
+                                </tr>
+                                <tr>
+                                    <td><code>material_override</code></td>
+                                    <td>Material</td>
+                                    <td>null</td>
+                                    <td>覆盖材质</td>
+                                </tr>
+                                <tr>
+                                    <td><code>skeleton</code></td>
+                                    <td>NodePath</td>
+                                    <td>""</td>
+                                    <td>骨骼节点路径</td>
+                                </tr>
+                                <tr>
+                                    <td><code>visibility_range_begin</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>可见范围开始距离</td>
+                                </tr>
+                                <tr>
+                                    <td><code>visibility_range_begin_margin</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>可见范围开始边距</td>
+                                </tr>
+                                <tr>
+                                    <td><code>visibility_range_end</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>可见范围结束距离</td>
+                                </tr>
+                                <tr>
+                                    <td><code>visibility_range_end_margin</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>可见范围结束边距</td>
+                                </tr>
+                                <tr>
+                                    <td><code>visibility_range_fade_mode</code></td>
+                                    <td>int</td>
+                                    <td>VISIBILITY_RANGE_FADE_SELF</td>
+                                    <td>淡入淡出模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>cast_shadow</code></td>
+                                    <td>int</td>
+                                    <td>SHADOW_CASTING_SETTING_ON</td>
+                                    <td>阴影投射设置</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gi_mode</code></td>
+                                    <td>int</td>
+                                    <td>GI_MODE_STATIC</td>
+                                    <td>全局光照模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>lightmap_scale</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>光照贴图缩放</td>
+                                </tr>
+                                <tr>
+                                    <td><code>no_depth_test</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否禁用深度测试</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用子节点</h4>
+                        <div class="subnodes-grid">
+                            <a href="#skeleton3d" class="subnode-link">Skeleton3D</a>
+                            <a href="#skin" class="subnode-link">Skin</a>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Camera3D -->
+                <article id="camera3d" class="node-card">
+                    <h3>Camera3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>Camera3D定义3D场景的视角，控制玩家看到的内容。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>fov</code></td>
+                                    <td>float</td>
+                                    <td>75.0</td>
+                                    <td>视野角度（度）</td>
+                                </tr>
+                                <tr>
+                                    <td><code>size</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>正交相机大小</td>
+                                </tr>
+                                <tr>
+                                    <td><code>near</code></td>
+                                    <td>float</td>
+                                    <td>0.05</td>
+                                    <td>近裁剪面距离</td>
+                                </tr>
+                                <tr>
+                                    <td><code>far</code></td>
+                                    <td>float</td>
+                                    <td>4000.0</td>
+                                    <td>远裁剪面距离</td>
+                                </tr>
+                                <tr>
+                                    <td><code>keep_aspect</code></td>
+                                    <td>int</td>
+                                    <td>KEEP_HEIGHT</td>
+                                    <td>保持宽高比模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>cull_mask</code></td>
+                                    <td>int</td>
+                                    <td>1048575(20位1)</td>
+                                    <td>遮罩层</td>
+                                </tr>
+                                <tr>
+                                    <td><code>h_offset</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>水平偏移</td>
+                                </tr>
+                                <tr>
+                                    <td><code>v_offset</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>垂直偏移</td>
+                                </tr>
+                                <tr>
+                                    <td><code>projection</code></td>
+                                    <td>int</td>
+                                    <td>PROJECTION_PERSPECTIVE</td>
+                                    <td>投影类型</td>
+                                </tr>
+                                <tr>
+                                    <td><code>current</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否为当前活动相机</td>
+                                </tr>
+                                <tr>
+                                    <td><code>doppler_tracking</code></td>
+                                    <td>int</td>
+                                    <td>DOPPLER_TRACKING_DISABLED</td>
+                                    <td>多普勒跟踪</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用子节点</h4>
+                        <div class="subnodes-grid">
+                            <a href="#environment" class="subnode-link">Environment</a>
+                        </div>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- UI节点 -->
+            <section id="ui-nodes" class="section">
+                <h2>UI节点</h2>
+                
+                <!-- CanvasLayer -->
+                <article id="canvas-layer" class="node-card">
+                    <h3>CanvasLayer</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>CanvasLayer用于在3D场景上绘制2D UI，可以控制UI的渲染层级。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>layer</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>层级编号</td>
+                                </tr>
+                                <tr>
+                                    <td><code>offset</code></td>
+                                    <td>Vector2</td>
+                                    <td>Vector2(0,0)</td>
+                                    <td>偏移量</td>
+                                </tr>
+                                <tr>
+                                    <td><code>rotation</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>旋转角度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>scale</code></td>
+                                    <td>Vector2</td>
+                                    <td>Vector2(1,1)</td>
+                                    <td>缩放比例</td>
+                                </tr>
+                                <tr>
+                                    <td><code>follow_viewport_enabled</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否跟随视口</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用子节点</h4>
+                        <div class="subnodes-grid">
+                            <a href="#control" class="subnode-link">Control</a>
+                            <a href="#colorrect" class="subnode-link">ColorRect</a>
+                            <a href="#label" class="subnode-link">Label</a>
+                            <a href="#button" class="subnode-link">Button</a>
+                            <a href="#container" class="subnode-link">Container</a>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- ColorRect -->
+                <article id="colorrect" class="node-card">
+                    <h3>ColorRect</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>ColorRect用于显示纯色矩形，常用于背景、准星、简单UI元素。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(1,1,1,1)</td>
+                                    <td>矩形颜色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>mouse_filter</code></td>
+                                    <td>int</td>
+                                    <td>MOUSE_FILTER_PASS</td>
+                                    <td>鼠标过滤模式</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 动画节点 -->
+            <section id="animation-nodes" class="section">
+                <h2>动画节点</h2>
+                
+                <!-- AnimationPlayer -->
+                <article id="animation-player" class="node-card">
+                    <h3>AnimationPlayer</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>AnimationPlayer用于播放和控制动画，支持动画混合和过渡。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>playback_active</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>是否激活播放</td>
+                                </tr>
+                                <tr>
+                                    <td><code>playback_process_mode</code></td>
+                                    <td>int</td>
+                                    <td>ANIMATION_PROCESS_PHYSICS</td>
+                                    <td>处理模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>default_blend_time</code></td>
+                                    <td>float</td>
+                                    <td>0.2</td>
+                                    <td>默认混合时间</td>
+                                </tr>
+                                <tr>
+                                    <td><code>root_node</code></td>
+                                    <td>NodePath</td>
+                                    <td>".."</td>
+                                    <td>根节点路径</td>
+                                </tr>
+                                <tr>
+                                    <td><code>current_animation</code></td>
+                                    <td>String</td>
+                                    <td>""</td>
+                                    <td>当前动画名称</td>
+                                </tr>
+                                <tr>
+                                    <td><code>assigned_animation</code></td>
+                                    <td>String</td>
+                                    <td>""</td>
+                                    <td>分配的动画名称</td>
+                                </tr>
+                                <tr>
+                                    <td><code>autoplay</code></td>
+                                    <td>String</td>
+                                    <td>""</td>
+                                    <td>自动播放动画</td>
+                                </tr>
+                                <tr>
+                                    <td><code>reset_on_save</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>保存时重置</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用方法</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>方法名</th>
+                                    <th>参数</th>
+                                    <th>返回值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>play(name, custom_speed, from_end)</code></td>
+                                    <td>String, float, bool</td>
+                                    <td>void</td>
+                                    <td>播放动画</td>
+                                </tr>
+                                <tr>
+                                    <td><code>stop(keep_state)</code></td>
+                                    <td>bool</td>
+                                    <td>void</td>
+                                    <td>停止动画</td>
+                                </tr>
+                                <tr>
+                                    <td><code>pause()</code></td>
+                                    <td>无</td>
+                                    <td>void</td>
+                                    <td>暂停动画</td>
+                                </tr>
+                                <tr>
+                                    <td><code>resume()</code></td>
+                                    <td>无</td>
+                                    <td>void</td>
+                                    <td>恢复动画</td>
+                                </tr>
+                                <tr>
+                                    <td><code>seek(seconds, update)</code></td>
+                                    <td>float, bool</td>
+                                    <td>void</td>
+                                    <td>跳转到指定时间</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_animation(name)</code></td>
+                                    <td>String</td>
+                                    <td>Animation</td>
+                                    <td>获取动画资源</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+                
+                <!-- AnimationTree -->
+                <article id="animation-tree" class="node-card">
+                    <h3>AnimationTree</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>AnimationTree提供复杂的动画状态机，支持动画混合、状态转换和参数控制。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>anim_player</code></td>
+                                    <td>NodePath</td>
+                                    <td>""</td>
+                                    <td>AnimationPlayer节点路径</td>
+                                </tr>
+                                <tr>
+                                    <td><code>tree_root</code></td>
+                                    <td>AnimationNode</td>
+                                    <td>null</td>
+                                    <td>动画树根节点</td>
+                                </tr>
+                                <tr>
+                                    <td><code>process_mode</code></td>
+                                    <td>int</td>
+                                    <td>ANIMATION_PROCESS_PHYSICS</td>
+                                    <td>处理模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>active</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>是否激活</td>
+                                </tr>
+                                <tr>
+                                    <td><code>advance_expression_base_node</code></td>
+                                    <td>NodePath</td>
+                                    <td>".."</td>
+                                    <td>表达式基础节点</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用方法</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>方法名</th>
+                                    <th>参数</th>
+                                    <th>返回值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>get(path)</code></td>
+                                    <td>String</td>
+                                    <td>Variant</td>
+                                    <td>获取参数值</td>
+                                </tr>
+                                <tr>
+                                    <td><code>set(path, value)</code></td>
+                                    <td>String, Variant</td>
+                                    <td>void</td>
+                                    <td>设置参数值</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_parameter_list()</code></td>
+                                    <td>无</td>
+                                    <td>Array</td>
+                                    <td>获取参数列表</td>
+                                </tr>
+                                <tr>
+                                    <td><code>travel(path)</code></td>
+                                    <td>String</td>
+                                    <td>void</td>
+                                    <td>状态机状态转换</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 音频节点 -->
+            <section id="audio-nodes" class="section">
+                <h2>音频节点</h2>
+                
+                <!-- AudioStreamPlayer3D -->
+                <article id="audio-stream-player3d" class="node-card">
+                    <h3>AudioStreamPlayer3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>AudioStreamPlayer3D用于在3D空间中播放音效，支持空间音效和距离衰减。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>stream</code></td>
+                                    <td>AudioStream</td>
+                                    <td>null</td>
+                                    <td>音频流资源</td>
+                                </tr>
+                                <tr>
+                                    <td><code>volume_db</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>音量（分贝）</td>
+                                </tr>
+                                <tr>
+                                    <td><code>pitch_scale</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>音调缩放</td>
+                                </tr>
+                                <tr>
+                                    <td><code>playing</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否正在播放</td>
+                                </tr>
+                                <tr>
+                                    <td><code>autoplay</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否自动播放</td>
+                                </tr>
+                                <tr>
+                                    <td><code>stream_paused</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否暂停</td>
+                                </tr>
+                                <tr>
+                                    <td><code>max_distance</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>最大影响距离</td>
+                                </tr>
+                                <tr>
+                                    <td><code>attenuation_model</code></td>
+                                    <td>int</td>
+                                    <td>ATTENUATION_INVERSE_SQUARE</td>
+                                    <td>衰减模型</td>
+                                </tr>
+                                <tr>
+                                    <td><code>doppler_tracking</code></td>
+                                    <td>int</td>
+                                    <td>DOPPLER_TRACKING_DISABLED</td>
+                                    <td>多普勒跟踪</td>
+                                </tr>
+                                <tr>
+                                    <td><code>unit_db</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>单位音量</td>
+                                </tr>
+                                <tr>
+                                    <td><code>unit_size</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>单位大小</td>
+                                </tr>
+                                <tr>
+                                    <td><code>max_db</code></td>
+                                    <td>float</td>
+                                    <td>3.0</td>
+                                    <td>最大音量</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用方法</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>方法名</th>
+                                    <th>参数</th>
+                                    <th>返回值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>play(from_position)</code></td>
+                                    <td>float</td>
+                                    <td>void</td>
+                                    <td>播放音效</td>
+                                </tr>
+                                <tr>
+                                    <td><code>stop()</code></td>
+                                    <td>无</td>
+                                    <td>void</td>
+                                    <td>停止播放</td>
+                                </tr>
+                                <tr>
+                                    <td><code>seek(position)</code></td>
+                                    <td>float</td>
+                                    <td>void</td>
+                                    <td>跳转到指定位置</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_playback_position()</code></td>
+                                    <td>无</td>
+                                    <td>float</td>
+                                    <td>获取当前播放位置</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 碰撞形状节点 -->
+            <section id="collision-nodes" class="section">
+                <h2>碰撞形状节点</h2>
+                
+                <!-- CollisionShape3D -->
+                <article id="collision-shape3d" class="node-card">
+                    <h3>CollisionShape3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>CollisionShape3D为物理体定义碰撞形状，必须作为物理体（如CharacterBody3D、StaticBody3D、Area3D）的子节点。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>shape</code></td>
+                                    <td>Shape3D</td>
+                                    <td>null</td>
+                                    <td>碰撞形状资源</td>
+                                </tr>
+                                <tr>
+                                    <td><code>disabled</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否禁用碰撞</td>
+                                </tr>
+                                <tr>
+                                    <td><code>debug_color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(0,1,0,0.5)</td>
+                                    <td>调试颜色</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用形状类型</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>形状类型</th>
+                                    <th>适用场景</th>
+                                    <th>特点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>BoxShape3D</code></td>
+                                    <td>方形物体</td>
+                                    <td>简单盒子形状</td>
+                                </tr>
+                                <tr>
+                                    <td><code>SphereShape3D</code></td>
+                                    <td>球形物体</td>
+                                    <td>完美球形</td>
+                                </tr>
+                                <tr>
+                                    <td><code>CapsuleShape3D</code></td>
+                                    <td>角色碰撞</td>
+                                    <td>适合人形角色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>CylinderShape3D</code></td>
+                                    <td>圆柱形物体</td>
+                                    <td>圆柱形状</td>
+                                </tr>
+                                <tr>
+                                    <td><code>ConvexPolygonShape3D</code></td>
+                                    <td>复杂凸形</td>
+                                    <td>自定义凸多边形</td>
+                                </tr>
+                                <tr>
+                                    <td><code>ConcavePolygonShape3D</code></td>
+                                    <td>复杂地形</td>
+                                    <td>自定义凹多边形</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+                
+                <!-- ShapeCast3D -->
+                <article id="shape-cast3d" class="node-card">
+                    <h3>ShapeCast3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>ShapeCast3D用于检测特定方向的碰撞，常用于地面检测、视线检测等。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>shape</code></td>
+                                    <td>Shape3D</td>
+                                    <td>null</td>
+                                    <td>投射形状</td>
+                                </tr>
+                                <tr>
+                                    <td><code>target_position</code></td>
+                                    <td>Vector3</td>
+                                    <td>Vector3(0,0,0)</td>
+                                    <td>目标位置</td>
+                                </tr>
+                                <tr>
+                                    <td><code>collide_with_areas</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>是否与Area3D碰撞</td>
+                                </tr>
+                                <tr>
+                                    <td><code>collide_with_bodies</code></td>
+                                    <td>bool</td>
+                                    <td>true</td>
+                                    <td>是否与物理体碰撞</td>
+                                </tr>
+                                <tr>
+                                    <td><code>collision_mask</code></td>
+                                    <td>int</td>
+                                    <td>1</td>
+                                    <td>碰撞掩码</td>
+                                </tr>
+                                <tr>
+                                    <td><code>max_results</code></td>
+                                    <td>int</td>
+                                    <td>32</td>
+                                    <td>最大结果数</td>
+                                </tr>
+                                <tr>
+                                    <td><code>debug_shape_custom_color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(1,0,0,0.5)</td>
+                                    <td>调试颜色</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>常用方法</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>方法名</th>
+                                    <th>参数</th>
+                                    <th>返回值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>is_colliding()</code></td>
+                                    <td>无</td>
+                                    <td>bool</td>
+                                    <td>是否有碰撞</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_collision_count()</code></td>
+                                    <td>无</td>
+                                    <td>int</td>
+                                    <td>获取碰撞数量</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_collision_point(i)</code></td>
+                                    <td>int</td>
+                                    <td>Vector3</td>
+                                    <td>获取碰撞点</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_collision_normal(i)</code></td>
+                                    <td>int</td>
+                                    <td>Vector3</td>
+                                    <td>获取碰撞法线</td>
+                                </tr>
+                                <tr>
+                                    <td><code>get_collider(i)</code></td>
+                                    <td>int</td>
+                                    <td>Object</td>
+                                    <td>获取碰撞对象</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+                
+                <!-- CollisionPolygon3D -->
+                <article id="collision-polygon3d" class="node-card">
+                    <h3>CollisionPolygon3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>CollisionPolygon3D用于定义多边形碰撞形状，适合复杂的二维碰撞。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>polygon</code></td>
+                                    <td>PackedVector2Array</td>
+                                    <td>[]</td>
+                                    <td>多边形顶点数组</td>
+                                </tr>
+                                <tr>
+                                    <td><code>depth</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>多边形厚度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>build_mode</code></td>
+                                    <td>int</td>
+                                    <td>BUILD_SOLIDS</td>
+                                    <td>构建模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>disabled</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否禁用碰撞</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 环境节点 -->
+            <section id="environment-nodes" class="section">
+                <h2>环境节点</h2>
+                
+                <!-- WorldEnvironment -->
+                <article id="world-environment" class="node-card">
+                    <h3>WorldEnvironment</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>WorldEnvironment定义整个场景的环境设置，包括光照、天空、雾效等。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>environment</code></td>
+                                    <td>Environment</td>
+                                    <td>null</td>
+                                    <td>环境资源</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h4>Environment资源主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>background_mode</code></td>
+                                    <td>int</td>
+                                    <td>BG_CLEAR_COLOR</td>
+                                    <td>背景模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>background_color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(0,0,0,1)</td>
+                                    <td>背景颜色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sky</code></td>
+                                    <td>Sky</td>
+                                    <td>null</td>
+                                    <td>天空资源</td>
+                                </tr>
+                                <tr>
+                                    <td><code>ambient_light_source</code></td>
+                                    <td>int</td>
+                                    <td>AMBIENT_SOURCE_BG</td>
+                                    <td>环境光源</td>
+                                </tr>
+                                <tr>
+                                    <td><code>ambient_light_color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(0,0,0,1)</td>
+                                    <td>环境光颜色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>fog_enabled</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否启用雾效</td>
+                                </tr>
+                                <tr>
+                                    <td><code>fog_light_color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(0,0,0,1)</td>
+                                    <td>雾颜色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>fog_density</code></td>
+                                    <td>float</td>
+                                    <td>0.001</td>
+                                    <td>雾密度</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+                
+                <!-- DirectionalLight3D -->
+                <article id="directional-light3d" class="node-card">
+                    <h3>DirectionalLight3D</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>DirectionalLight3D模拟平行光源，如太阳光，适用于户外场景。</p>
+                        
+                        <h4>主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>light_color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(1,1,1,1)</td>
+                                    <td>光照颜色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>light_energy</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>光照强度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>light_indirect_energy</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>间接光照强度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>light_specular</code></td>
+                                    <td>float</td>
+                                    <td>0.5</td>
+                                    <td>镜面反射强度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>shadow_enabled</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否启用阴影</td>
+                                </tr>
+                                <tr>
+                                    <td><code>shadow_bias</code></td>
+                                    <td>float</td>
+                                    <td>0.1</td>
+                                    <td>阴影偏移</td>
+                                </tr>
+                                <tr>
+                                    <td><code>directional_shadow_mode</code></td>
+                                    <td>int</td>
+                                    <td>SHADOW_ORTHOGONAL</td>
+                                    <td>阴影模式</td>
+                                </tr>
+                                <tr>
+                                    <td><code>directional_shadow_blend_splits</code></td>
+                                    <td>bool</td>
+                                    <td>false</td>
+                                    <td>是否混合阴影分割</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 输入节点 -->
+            <section id="input-nodes" class="section">
+                <h2>输入节点</h2>
+                
+                <!-- InputEvent -->
+                <article id="input-event" class="node-card">
+                    <h3>InputEvent</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>InputEvent是输入事件的基类，处理键盘、鼠标、手柄等输入。</p>
+                        
+                        <h4>常用子类型</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>类型</th>
+                                    <th>作用</th>
+                                    <th>常用属性</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>InputEventKey</code></td>
+                                    <td>键盘输入</td>
+                                    <td><code>keycode</code>、<code>pressed</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>InputEventMouseButton</code></td>
+                                    <td>鼠标按钮</td>
+                                    <td><code>button_index</code>、<code>pressed</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>InputEventMouseMotion</code></td>
+                                    <td>鼠标移动</td>
+                                    <td><code>relative</code>、<code>position</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>InputEventJoypadButton</code></td>
+                                    <td>手柄按钮</td>
+                                    <td><code>button_index</code>、<code>pressed</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>InputEventJoypadMotion</code></td>
+                                    <td>手柄摇杆</td>
+                                    <td><code>axis</code>、<code>axis_value</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 资源节点 -->
+            <section id="resource-nodes" class="section">
+                <h2>资源节点</h2>
+                
+                <!-- PackedScene -->
+                <article id="packed-scene" class="node-card">
+                    <h3>PackedScene</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>PackedScene是场景资源，可以保存整个场景树结构，用于实例化场景。</p>
+                        
+                        <h4>常用方法</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>方法名</th>
+                                    <th>参数</th>
+                                    <th>返回值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>instantiate()</code></td>
+                                    <td>无</td>
+                                    <td>Node</td>
+                                    <td>实例化场景</td>
+                                </tr>
+                                <tr>
+                                    <td><code>pack(scene)</code></td>
+                                    <td>Node</td>
+                                    <td>Error</td>
+                                    <td>打包场景</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+                
+                <!-- Material -->
+                <article id="material" class="node-card">
+                    <h3>Material</h3>
+                    <div class="node-info">
+                        <h4>节点作用</h4>
+                        <p>Material定义物体表面的渲染属性，如颜色、粗糙度、金属度等。</p>
+                        
+                        <h4>StandardMaterial3D主要属性</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>属性名</th>
+                                    <th>类型</th>
+                                    <th>默认值</th>
+                                    <th>作用说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>albedo_color</code></td>
+                                    <td>Color</td>
+                                    <td>Color(1,1,1,1)</td>
+                                    <td>反照率颜色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>albedo_texture</code></td>
+                                    <td>Texture2D</td>
+                                    <td>null</td>
+                                    <td>反照率纹理</td>
+                                </tr>
+                                <tr>
+                                    <td><code>metallic</code></td>
+                                    <td>float</td>
+                                    <td>0.0</td>
+                                    <td>金属度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>roughness</code></td>
+                                    <td>float</td>
+                                    <td>1.0</td>
+                                    <td>粗糙度</td>
+                                </tr>
+                                <tr>
+                                    <td><code>emission</code></td>
+                                    <td>Color</td>
+                                    <td>Color(0,0,0,1)</td>
+                                    <td>自发光颜色</td>
+                                </tr>
+                                <tr>
+                                    <td><code>normal_texture</code></td>
+                                    <td>Texture2D</td>
+                                    <td>null</td>
+                                    <td>法线贴图</td>
+                                </tr>
+                                <tr>
+                                    <td><code>roughness_texture</code></td>
+                                    <td>Texture2D</td>
+                                    <td>null</td>
+                                    <td>粗糙度贴图</td>
+                                </tr>
+                                <tr>
+                                    <td><code>metallic_texture</code></td>
+                                    <td>Texture2D</td>
+                                    <td>null</td>
+                                    <td>金属度贴图</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+            
+            <!-- 节点使用技巧 -->
+            <section id="tips" class="section">
+                <h2>节点使用技巧</h2>
+                
+                <article id="organization-tips" class="node-card">
+                    <h3>节点组织原则</h3>
+                    <div class="node-info">
+                        <ol>
+                            <li><strong>层级清晰</strong>：父子关系反映逻辑关系</li>
+                            <li><strong>功能分离</strong>：不同功能的节点分开组织</li>
+                            <li><strong>命名规范</strong>：使用有意义的名称</li>
+                            <li><strong>场景复用</strong>：可重用的部分做成独立场景</li>
+                        </ol>
+                    </div>
+                </article>
+                
+                <article id="optimization-tips" class="node-card">
+                    <h3>性能优化建议</h3>
+                    <div class="node-info">
+                        <ol>
+                            <li><strong>碰撞优化</strong>：使用最简单的碰撞形状</li>
+                            <li><strong>渲染优化</strong>：合并相同材质的物体</li>
+                            <li><strong>动画优化</strong>：避免过多同时播放的动画</li>
+                            <li><strong>音频优化</strong>：合理设置音频影响范围</li>
+                        </ol>
+                    </div>
+                </article>
+                
+                <article id="problem-solving-tips" class="node-card">
+                    <h3>常见问题解决</h3>
+                    <div class="node-info">
+                        <ol>
+                            <li><strong>角色卡顿</strong>：检查CharacterBody3D的move_and_slide()调用</li>
+                            <li><strong>相机穿模</strong>：设置合适的near值和碰撞层</li>
+                            <li><strong>动画不播放</strong>：检查AnimationTree是否激活</li>
+                            <li><strong>音效不响</strong>：检查AudioStreamPlayer3D的volume_db和max_distance</li>
+                        </ol>
+                    </div>
+                </article>
+            </section>
+            
+            <section id="learning-advice" class="section">
+                <h2>学习建议</h2>
+                <article class="node-card">
+                    <div class="node-info">
+                        <ol>
+                            <li><strong>理解节点关系</strong>：先理解父子节点之间的关系和作用</li>
+                            <li><strong>熟悉常用属性</strong>：重点掌握每个节点的核心属性</li>
+                            <li><strong>实践验证</strong>：修改属性值，观察效果变化</li>
+                            <li><strong>查阅文档</strong>：遇到不熟悉的节点，查阅Godot官方文档</li>
+                            <li><strong>组合应用</strong>：学会将不同节点组合使用，实现复杂功能</li>
+                        </ol>
+                    </div>
+                </article>
+            </section>
+        </main>
+        
+        <footer>
+            <p>Godot 4.4 TPS Demo 节点与属性知识点文档 &copy; 2026</p>
+        </footer>
+    </div> <!-- container -->
+    </div> <!-- main-container -->
+    <script src="script.js"></script>
+</body>
+</html>
