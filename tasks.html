@@ -8,7 +8,7 @@
     <style>
         /* 任务页面特定样式 */
         .task-container {
-            max-width: 900px;
+            width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -111,7 +111,10 @@
             font-size: 1.4rem;
         }
 
-        .task-card ol,
+        .task-card ol {
+            /* margin: 20px 0 10px 0; */
+            border-bottom: 3px solid #667eea;
+        }
         .task-card ul {
             margin: 15px 0;
             padding-left: 25px;
@@ -128,6 +131,16 @@
             border-radius: 3px;
             font-family: 'Courier New', monospace;
             color: #e74c3c;
+        }
+
+        .task-card pre {
+            /* background: #f8f9fa; */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            max-width: 100%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .script-section {
@@ -383,7 +396,7 @@
             <h2>任务进度</h2>
             <p>当前任务：<span id="current-task-name">任务1：创建My文件夹</span></p>
             <div class="task-jump">
-                <input type="number" id="task-number-input" min="1" max="9" placeholder="输入任务编号(1-9)">
+                <input type="number" id="task-number-input" min="1" max="11" placeholder="输入任务编号(1-11)">
                 <button onclick="jumpToTask()" class="jump-btn">跳转</button>
             </div>
         </div>
@@ -1409,21 +1422,734 @@ func _on_jump_pad_exited() -> void:
                     <li>培养学生的关卡设计思维</li>
                 </ul>
             </div>
-            
-            <div class="success-box">
-                <h5>🎉 恭喜！</h5>
-                <p>你已经完成了所有9个任务！现在你已经掌握了：</p>
-                <ul>
-                    <li>创建基本的玩家角色系统</li>
-                    <li>实现第三人称相机控制</li>
-                    <li>添加死亡检测和重置功能</li>
-                    <li>创建交互元素（跳跃板）</li>
-                    <li>使用信号系统实现节点间通信</li>
-                    <li>设计简单的游戏关卡</li>
-                </ul>
-                <p>继续探索，你可以添加更多功能，如敌人系统、武器系统、UI系统等！</p>
-            </div>
         </div>
+
+        <!-- 任务10：实现近战攻击功能 -->
+        <div class="task-card" id="task-10">
+            
+                <h3>任务10：实现近战攻击功能</h3>
+                
+                <h4>操作步骤</h4>
+                
+                <ol>
+                    <li>在项目设置中添加输入映射：
+                        <ul>
+                            <li>打开"项目" -> "项目设置" -> "输入映射"</li>
+                            <li>确保以下动作已映射（如果尚未添加）：
+                                <ul>
+                                    <li><code>melee_attack</code>：按键E</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>在Player场景中，选中Player节点</li>
+                    <li>为Player节点添加一个Area3D子节点，命名为"MeleeAttackArea"
+                        <ul>
+                            <li>设置为近战攻击的检测区域</li>
+                        </ul>
+                    </li>
+                    <li>为MeleeAttackArea添加一个CollisionShape3D子节点
+                        <ul>
+                            <li>设置为球形或胶囊形状，作为近战攻击范围</li>
+                        </ul>
+                    </li>
+                    <li>打开现有的Player脚本（player.gd）</li>
+                    <li>询问AI导师如何添加近战攻击功能</li>
+                    <li>根据AI导师的指导，复制提供的代码并添加到现有脚本中</li>
+                    <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                    <li>保存Player场景（Ctrl+S或Cmd+S）</li>
+                    <li>运行游戏测试（F5），尝试使用近战攻击（按E键）</li>
+                </ol>
+                
+                <div class="script-section">
+                    <div class="script-header">
+                        <h4>player-t10.gd 脚本</h4>
+                        <button class="copy-btn" onclick="copyScript('script-task10')">复制脚本</button>
+                    </div>
+                    <div class="script-content" id="script-task10">
+<pre># 任务10：玩家移动和跳跃脚本（支持跳跃板交互和近战攻击）
+# 在任务8的基础上添加近战攻击功能
+
+class_name PlayerT10
+extends CharacterBody3D
+
+# 移动相关参数
+@export var move_speed := 8.0                    # 角色移动速度
+@export var acceleration := 4.0                  # 移动加速度
+@export var jump_initial_impulse := 12.0         # 初始跳跃力度
+@export var jump_additional_force := 4.5         # 按住跳跃键时的额外跳跃力
+@export var rotation_speed := 12.0               # 角色旋转速度
+@export var stopping_speed := 1.0                # 停止移动的速度阈值
+
+# 近战攻击参数
+@export var melee_damage := 20                    # 近战攻击伤害
+@export var melee_range := 2.0                    # 近战攻击范围
+
+# 物理相关参数
+@export var gravity := -30.0                     # 重力加速度
+
+# 相机引用（需要在场景中设置）
+@onready var camera: Camera3D = $CameraController/ThirdPersonCamera
+@onready var melee_attack_area: Area3D = $MeleeAttackArea
+
+# 内部变量
+var _move_direction := Vector3.ZERO              # 当前移动方向
+var _last_strong_direction := Vector3.FORWARD     # 上一次的有效移动方向
+var _is_on_floor_buffer := false                 # 地面检测缓冲
+var _is_on_jump_pad := false                    # 是否在跳跃板上
+var _current_jump_pad: JumpPadT8 = null         # 当前所在的跳跃板引用
+
+func _ready() -> void:
+	# 设置近战攻击区域的范围
+	var collision_shape = melee_attack_area.get_child(0) as CollisionShape3D
+	if collision_shape and collision_shape.shape is SphereShape3D:
+		collision_shape.shape.radius = melee_range
+	elif collision_shape and collision_shape.shape is CapsuleShape3D:
+		collision_shape.shape.height = melee_range * 2
+	
+func _physics_process(delta: float) -> void:
+	# 更新地面检测缓冲
+	_is_on_floor_buffer = is_on_floor()
+	
+	# 获取输入
+	_move_direction = _get_camera_oriented_input()
+	
+	# 保存上一次的有效移动方向，用于角色朝向
+	if _move_direction.length() > 0.2:
+		_last_strong_direction = _move_direction.normalized()
+	
+	# 分离Y轴速度，避免重力影响水平移动插值
+	var y_velocity := velocity.y
+	velocity.y = 0.0
+	
+	# 使用插值实现平滑的移动加速
+	velocity = velocity.lerp(_move_direction * move_speed, acceleration * delta)
+	
+	# 如果停止移动且速度很小，直接停止
+	if _move_direction.length() == 0 and velocity.length() < stopping_speed:
+		velocity = Vector3.ZERO
+	
+	# 恢复Y轴速度
+	velocity.y = y_velocity
+	
+	# 应用重力
+	velocity.y += gravity * delta
+	
+	# 处理跳跃
+	var is_just_jumping := Input.is_action_just_pressed("jump") and is_on_floor()
+	var is_air_boosting := Input.is_action_pressed("jump") and not is_on_floor() and velocity.y > 0.0
+	
+	if is_just_jumping:
+		# 如果在跳跃板上，使用增强跳跃
+		if _is_on_jump_pad and _current_jump_pad:
+			# 从跳跃板获取增强倍数
+			var boost_multiplier = _current_jump_pad.boost_multiplier
+			velocity.y += jump_initial_impulse * boost_multiplier
+			print("跳跃板增强跳跃！力度：", jump_initial_impulse * boost_multiplier)
+		else:
+			velocity.y += jump_initial_impulse
+	elif is_air_boosting:
+		velocity.y += jump_additional_force * delta
+	
+	# 执行实际移动
+	move_and_slide()
+
+func _process(_delta: float) -> void:
+	# 处理近战攻击
+	if Input.is_action_just_pressed("melee_attack"):
+		melee_attack()
+
+# 根据相机方向获取输入方向
+func _get_camera_oriented_input() -> Vector3:
+	# 获取原始输入（WASD或方向键）
+	var raw_input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
+	var input := Vector3.ZERO
+	# 确保对角线移动不会比轴向移动更快
+	input.x = raw_input.x * sqrt(1.0 - raw_input.y * raw_input.y / 2.0)
+	input.z = raw_input.y * sqrt(1.0 - raw_input.x * raw_input.x / 2.0)
+	
+	# 根据相机方向转换输入
+	input = camera.global_transform.basis * input
+	input.y = 0.0
+	return input.normalized()
+
+# 近战攻击
+func melee_attack() -> void:
+	print("执行近战攻击，伤害：", melee_damage)
+	
+	# 获取近战攻击区域内的所有碰撞体
+	var overlapping_bodies = melee_attack_area.get_overlapping_bodies()
+	
+	# 对范围内的敌人造成伤害
+	for body in overlapping_bodies:
+		if body.has_method("take_damage"):
+			body.take_damage(melee_damage)
+			print("对敌人造成", melee_damage, "点伤害")
+	
+	# 这里可以添加攻击动画效果
+	# 例如：$AnimationPlayer.play("melee_attack")
+
+# 进入跳跃板区域
+func _on_jump_pad_entered(jump_pad: JumpPadT8) -> void:
+	_is_on_jump_pad = true
+	_current_jump_pad = jump_pad
+	# print("进入跳跃板区域")
+
+# 离开跳跃板区域
+func _on_jump_pad_exited() -> void:
+	_is_on_jump_pad = false
+	_current_jump_pad = null
+	# print("离开跳跃板区域")</pre>
+                    </div>
+                </div>
+                
+                <h4>参数调整</h4>
+                <p>在老师提供的参考脚本中，你可以在Inspector面板中调整以下参数：</p>
+                <ul>
+                    <li><strong>近战攻击参数：</strong>
+                        <ul>
+                            <li><code>Melee Damage</code>：近战攻击伤害（默认为20）</li>
+                            <li><code>Melee Range</code>：近战攻击范围（默认为2.0米）</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h4>任务10完成后的场景树结构</h4>
+                <pre><code>Player (CharacterBody3D)【脚本: player.gd !!!更新】
+├── MeshInstance3D (角色模型)
+├── CollisionShape3D (胶囊形状)
+├── CameraController (Node3D)【脚本: camera_controller.gd】
+│   └── ThirdPersonCamera (Camera3D)
+└── MeleeAttackArea (Area3D)
+    └── CollisionShape3D (近战攻击范围)</code></pre>
+                
+                <div class="info-box">
+                    <h5>💡 近战攻击系统设计思路</h5>
+                    <ul>
+                        <li><strong>攻击检测</strong>：使用Area3D检测范围内的敌人</li>
+                        <li><strong>伤害计算</strong>：对范围内的敌人造成固定伤害</li>
+                        <li><strong>代码组织</strong>：目前直接在玩家脚本中实现，后续任务将进行重构</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h5>🎯 学习重点</h5>
+                    <ul>
+                        <li>Area3D的使用方法</li>
+                        <li>范围检测的实现</li>
+                        <li>在现有脚本中添加新功能的方法</li>
+                    </ul>
+                </div>
+            </div>
+            
+        <!-- 任务10.5：添加攻击可视化效果（可选） -->
+        <div class="task-card" id="task-10-5">
+                <h3>任务10.5：添加攻击可视化效果（可选）</h3>
+                <p>本任务将为近战攻击添加可视化效果，使攻击更加直观。你将学习如何为Area3D添加MeshInstance3D来显示攻击检测区域，以及如何通过脚本控制节点的显示和隐藏。这是游戏开发中常用的调试和原型开发技巧。</p>
+                
+                <h4>操作步骤</h4>
+                <ol>
+                    <li>在Player场景中，为MeleeAttackArea节点添加一个MeshInstance3D子节点，命名为"AttackIndicator"</li>
+                    <li>设置AttackIndicator的Mesh：
+                        <ul>
+                            <li>如果MeleeAttackArea的CollisionShape3D是SphereShape3D，则设置Mesh为SphereMesh</li>
+                            <li>如果MeleeAttackArea的CollisionShape3D是CapsuleShape3D，则设置Mesh为CapsuleMesh</li>
+                        </ul>
+                    </li>
+                    <li>调整AttackIndicator的大小，使其与MeleeAttackArea的CollisionShape3D的大小匹配</li>
+                    <li>为AttackIndicator创建半透明材质：
+                        <ul>
+                            <li>在Inspector中找到Material Override</li>
+                            <li>点击新建StandardMaterial3D</li>
+                            <li>设置Transparency为Alpha</li>
+                            <li>调整Albedo Color的透明度（A值）为0.3</li>
+                        </ul>
+                    </li>
+                    <li>在Inspector中设置AttackIndicator的Visible属性为false（默认隐藏）</li>
+                    <li>打开现有的Player脚本（player.gd）</li>
+                    <li>询问AI导师如何添加攻击可视化效果</li>
+                    <li>根据AI导师的指导，复制提供的代码并添加到现有脚本中</li>
+                    <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                    <li>保存Player场景（Ctrl+S或Cmd+S）</li>
+                    <li>运行游戏测试（F5），尝试使用近战攻击（按E键），观察攻击范围的可视化效果</li>
+                </ol>
+                
+                <div class="script-section">
+                    <div class="script-header">
+                        <h4>player-t10-5-visual.gd 脚本</h4>
+                        <button class="copy-btn" onclick="copyScript('script-task10-5')">复制脚本</button>
+                    </div>
+                    <div class="script-content" id="script-task10-5">
+<pre># 任务10.5：玩家移动和跳跃脚本（支持跳跃板交互、近战攻击和可视化效果）
+# 在任务10的基础上添加攻击可视化效果
+
+class_name PlayerT10_5
+extends CharacterBody3D
+
+# 移动相关参数
+@export var move_speed := 8.0                    # 角色移动速度
+@export var acceleration := 4.0                  # 移动加速度
+@export var jump_initial_impulse := 12.0         # 初始跳跃力度
+@export var jump_additional_force := 4.5         # 按住跳跃键时的额外跳跃力
+@export var rotation_speed := 12.0               # 角色旋转速度
+@export var stopping_speed := 1.0                # 停止移动的速度阈值
+
+# 近战攻击参数
+@export var melee_damage := 20                    # 近战攻击伤害
+@export var melee_range := 2.0                    # 近战攻击范围
+
+# 可视化参数
+@export var attack_indicator_duration := 0.3        # 攻击范围显示时长
+
+# 物理相关参数
+@export var gravity := -30.0                     # 重力加速度
+
+# 相机引用（需要在场景中设置）
+@onready var camera: Camera3D = $CameraController/ThirdPersonCamera
+@onready var melee_attack_area: Area3D = $MeleeAttackArea
+@onready var attack_indicator: MeshInstance3D = $MeleeAttackArea/AttackIndicator
+
+# 内部变量
+var _move_direction := Vector3.ZERO              # 当前移动方向
+var _last_strong_direction := Vector3.FORWARD     # 上一次的有效移动方向
+var _is_on_floor_buffer := false                 # 地面检测缓冲
+var _is_on_jump_pad := false                    # 是否在跳跃板上
+var _current_jump_pad: JumpPadT8 = null         # 当前所在的跳跃板引用
+
+func _ready() -> void:
+	# 设置近战攻击区域的范围
+	var collision_shape = melee_attack_area.get_child(0) as CollisionShape3D
+	if collision_shape and collision_shape.shape is SphereShape3D:
+		collision_shape.shape.radius = melee_range
+	elif collision_shape and collision_shape.shape is CapsuleShape3D:
+		collision_shape.shape.height = melee_range * 2
+	
+	# 确保攻击指示器默认隐藏
+	if attack_indicator:
+		attack_indicator.visible = false
+
+func _physics_process(delta: float) -> void:
+	# 更新地面检测缓冲
+	_is_on_floor_buffer = is_on_floor()
+	
+	# 获取输入
+	_move_direction = _get_camera_oriented_input()
+	
+	# 保存上一次的有效移动方向，用于角色朝向
+	if _move_direction.length() > 0.2:
+		_last_strong_direction = _move_direction.normalized()
+	
+	# 分离Y轴速度，避免重力影响水平移动插值
+	var y_velocity := velocity.y
+	velocity.y = 0.0
+	
+	# 使用插值实现平滑的移动加速
+	velocity = velocity.lerp(_move_direction * move_speed, acceleration * delta)
+	
+	# 如果停止移动且速度很小，直接停止
+	if _move_direction.length() == 0 and velocity.length() < stopping_speed:
+		velocity = Vector3.ZERO
+	
+	# 恢复Y轴速度
+	velocity.y = y_velocity
+	
+	# 应用重力
+	velocity.y += gravity * delta
+	
+	# 处理跳跃
+	var is_just_jumping := Input.is_action_just_pressed("jump") and is_on_floor()
+	var is_air_boosting := Input.is_action_pressed("jump") and not is_on_floor() and velocity.y > 0.0
+	
+	if is_just_jumping:
+		# 如果在跳跃板上，使用增强跳跃
+		if _is_on_jump_pad and _current_jump_pad:
+			# 从跳跃板获取增强倍数
+			var boost_multiplier = _current_jump_pad.boost_multiplier
+			velocity.y += jump_initial_impulse * boost_multiplier
+			print("跳跃板增强跳跃！力度：", jump_initial_impulse * boost_multiplier)
+		else:
+			velocity.y += jump_initial_impulse
+	elif is_air_boosting:
+		velocity.y += jump_additional_force * delta
+	
+	# 执行实际移动
+	move_and_slide()
+
+func _process(_delta: float) -> void:
+	# 处理近战攻击
+	if Input.is_action_just_pressed("melee_attack"):
+		melee_attack()
+
+# 根据相机方向获取输入方向
+func _get_camera_oriented_input() -> Vector3:
+	# 获取原始输入（WASD或方向键）
+	var raw_input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
+	var input := Vector3.ZERO
+	# 确保对角线移动不会比轴向移动更快
+	input.x = raw_input.x * sqrt(1.0 - raw_input.y * raw_input.y / 2.0)
+	input.z = raw_input.y * sqrt(1.0 - raw_input.x * raw_input.x / 2.0)
+	
+	# 根据相机方向转换输入
+	input = camera.global_transform.basis * input
+	input.y = 0.0
+	return input.normalized()
+
+# 更新MeleeAttackArea的旋转，使其面向玩家移动方向
+func _update_melee_attack_area_rotation() -> void:
+	if _last_strong_direction.length() > 0.1:
+		# 计算目标旋转角度（绕Y轴旋转）
+		var target_angle = atan2(_last_strong_direction.x, _last_strong_direction.z)
+		
+		# 应用旋转到MeleeAttackArea
+		melee_attack_area.rotation.y = target_angle
+
+# 近战攻击
+func melee_attack() -> void:
+	# 保存MeleeAttackArea的原始位置
+	var original_position = melee_attack_area.position
+	
+	# 计算MeleeAttackArea的新位置（在玩家前方）
+	if _last_strong_direction.length() > 0.1:
+		melee_attack_area.position = _last_strong_direction * (melee_range * 0.5)
+	
+	# 显示攻击范围
+	_show_attack_indicator()
+	
+	# 等待一帧让物理系统更新碰撞检测
+	await get_tree().process_frame
+	
+	# 获取近战攻击区域内的所有碰撞体
+	var overlapping_bodies = melee_attack_area.get_overlapping_bodies()
+	
+	# 对范围内的敌人造成伤害
+	for body in overlapping_bodies:
+		if body.has_method("take_damage"):
+			body.take_damage(melee_damage)
+	
+	# 使用定时器在指定时间后恢复MeleeAttackArea位置
+	var timer = Timer.new()
+	timer.wait_time = attack_indicator_duration
+	timer.one_shot = true
+	add_child(timer)
+	timer.timeout.connect(func():
+		melee_attack_area.position = original_position
+		timer.queue_free()
+	)
+	timer.start()
+	
+	# 这里可以添加攻击动画效果
+	# 例如：$AnimationPlayer.play("melee_attack")
+
+# 显示攻击范围指示器
+func _show_attack_indicator() -> void:
+	if attack_indicator:
+		# AttackIndicator作为MeleeAttackArea的子节点，自动跟随移动
+		# 只需要控制显示/隐藏
+		attack_indicator.visible = true
+		
+		print("AttackIndicator位置：", attack_indicator.global_position)
+		
+		# 使用定时器在指定时间后隐藏
+		var timer = Timer.new()
+		timer.wait_time = attack_indicator_duration
+		timer.one_shot = true
+		add_child(timer)
+		timer.timeout.connect(func():
+			if attack_indicator:
+				attack_indicator.visible = false
+			timer.queue_free()
+		)
+		timer.start()
+
+# 进入跳跃板区域
+func _on_jump_pad_entered(jump_pad: JumpPadT8) -> void:
+	_is_on_jump_pad = true
+	_current_jump_pad = jump_pad
+	# print("进入跳跃板区域")
+
+# 离开跳跃板区域
+func _on_jump_pad_exited() -> void:
+	_is_on_jump_pad = false
+	_current_jump_pad = null
+	# print("离开跳跃板区域")</pre>
+                    </div>
+                </div>
+                
+                <h4>参数调整</h4>
+                <p>在老师提供的参考脚本中，你可以在Inspector面板中调整以下参数：</p>
+                <ul>
+                    <li><strong>可视化参数：</strong>
+                        <ul>
+                            <li><code>Attack Indicator Duration</code>：攻击范围显示时长（默认为0.3秒）</li>
+                        </ul>
+                    </li>
+                    <li><strong>材质参数</strong>（在AttackIndicator节点的材质中调整）：
+                        <ul>
+                            <li><code>Albedo Color</code>：攻击范围颜色（建议使用红色）</li>
+                            <li><code>Albedo Color - A</code>：攻击范围透明度（建议设置为0.3）</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h4>任务10.5完成后的场景树结构</h4>
+                <pre><code>Player (CharacterBody3D)【脚本: player.gd !!!更新】
+├── MeshInstance3D (角色模型)
+├── CollisionShape3D (胶囊形状)
+├── CameraController (Node3D)【脚本: camera_controller.gd】
+│   └── ThirdPersonCamera (Camera3D)
+└── MeleeAttackArea (Area3D)
+    ├── CollisionShape3D (近战攻击范围)
+    └── AttackIndicator (MeshInstance3D)【默认隐藏，攻击时显示】</code></pre>
+                
+                <div class="info-box">
+                    <h5>💡 可视化效果说明</h5>
+                    <ul>
+                        <li>攻击时会动态创建半透明球体Mesh显示攻击范围</li>
+                        <li>使用AttackIndicatorTimer控制显示时长</li>
+                        <li>通过材质透明度实现半透明效果</li>
+                        <li>攻击结束后自动清理临时Mesh对象</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <h5>💡 可视化系统设计思路</h5>
+                    <ul>
+                        <li><strong>临时Mesh</strong>：攻击时创建半透明球体，显示攻击范围</li>
+                        <li><strong>自动销毁</strong>：使用Timer控制显示时长，自动清理临时对象</li>
+                        <li><strong>材质控制</strong>：通过调整材质透明度创建半透明效果</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h5>🎯 学习重点</h5>
+                    <ul>
+                        <li>临时对象的创建和管理</li>
+                        <li>材质和透明度控制</li>
+                        <li>Timer的使用方法</li>
+                        <li>原型开发技巧（无美术资源时的可视化方法）</li>
+                    </ul>
+                </div>
+            </div>
+            
+        <!-- 任务11：创建可破坏的箱子 -->
+        <div class="task-card" id="task-11">
+            <p> </p>
+                <h3>任务11：创建可破坏的箱子</h3>
+                <p>本任务将创建可破坏的箱子作为攻击目标。你将学习如何创建可交互的对象，实现伤害检测和破坏效果。这是游戏中最常见的交互元素之一。</p>
+                
+                <h4>操作步骤</h4>
+                <ol>
+                    <li><strong>重要</strong>：在Player场景中，为MeleeAttackArea设置碰撞层
+                        <ul>
+                            <li>选中MeleeAttackArea节点</li>
+                            <li>在Inspector中找到Collision Mask属性</li>
+                            <li>设置Layer 2为勾选状态（表示检测可破坏物体）</li>
+                            <li>这样近战攻击才能检测到箱子</li>
+                        </ul>
+                    </li>
+                    <li>在InteractiveObjects节点下创建一个StaticBody3D子节点，命名为"DestructibleBox"</li>
+                    <li>为DestructibleBox添加一个MeshInstance3D子节点，命名为"BoxMesh"
+                        <ul>
+                            <li>设置Mesh为BoxMesh，调整大小为1x1x1米</li>
+                        </ul>
+                    </li>
+                    <li>为DestructibleBox添加一个CollisionShape3D子节点
+                        <ul>
+                            <li>设置Shape为BoxShape3D，与Mesh大小匹配</li>
+                        </ul>
+                    </li>
+                    <li>为DestructibleBox添加一个GPUParticles3D子节点，命名为"BreakParticles"
+                        <ul>
+                            <li>在Inspector中配置粒子系统（见参数调整部分）</li>
+                        </ul>
+                    </li>
+                    <li>为DestructibleBox添加一个AudioStreamPlayer3D子节点，命名为"BreakSound"
+                        <ul>
+                            <li>设置破坏音效（可选）</li>
+                        </ul>
+                    </li>
+                    <li><strong>重要</strong>：为DestructibleBox设置碰撞层
+                        <ul>
+                            <li>在Inspector中找到Collision Layer属性</li>
+                            <li>设置Layer 2为勾选状态（表示可破坏物体）</li>
+                        </ul>
+                    </li>
+                    <li>为DestructibleBox附加新脚本，命名为"destructible_box.gd"并保存到My文件夹</li>
+                    <li>打开脚本，询问AI导师如何实现可破坏箱子功能</li>
+                    <li>根据AI导师的指导，复制提供的代码并粘贴到脚本中</li>
+                    <li>保存DestructibleBox为分支场景（可选，便于复制多个箱子）</li>
+                    <li>在Main场景中复制多个箱子，放置在不同位置</li>
+                    <li>保存Main场景（Ctrl+S或Cmd+S）</li>
+                    <li>运行游戏测试（F5），尝试用近战攻击破坏箱子</li>
+                </ol>
+
+                <p> </p>
+                <div class="info-box">
+                    <h5>💡 教师提示</h5>
+                    <p>如果遇到困难，可以参考教师准备的完整脚本：</p>
+                </div>
+                
+                <div class="script-section">
+                    <div class="script-header">
+                        <h4>destructible_box-t11.gd 脚本</h4>
+                        <button class="copy-btn" onclick="copyScript('script-task11')">复制脚本</button>
+                    </div>
+                    <div class="script-content" id="script-task11">
+<pre># 任务11：可破坏箱子脚本
+# 实现可破坏的箱子，支持伤害检测和破坏效果
+
+class_name DestructibleBox
+extends StaticBody3D
+
+# 箱子参数
+@export var health := 30.0                       # 箱子生命值
+@export var destroy_time := 0.5                    # 破坏动画时长
+
+# 粒子参数
+@export var particle_amount := 50                    # 粒子数量
+@export var particle_lifetime := 1.0                   # 粒子生命周期
+@export var particle_initial_velocity := 5.0            # 粒子初始速度
+
+# 内部变量
+var is_destroyed := false                         # 是否已被破坏
+
+# 节点引用
+@onready var break_particles: GPUParticles3D = $BreakParticles
+@onready var break_sound: AudioStreamPlayer3D = $BreakSound
+@onready var box_mesh: MeshInstance3D = $BoxMesh
+
+func _ready() -> void:
+	# 配置粒子系统
+	_configure_particles()
+
+# 配置粒子系统
+func _configure_particles() -> void:
+	# 设置粒子发射
+	break_particles.emitting = false
+	break_particles.amount = particle_amount
+	break_particles.lifetime = particle_lifetime
+	
+	# 设置粒子材质
+	var particle_material = StandardMaterial3D.new()
+	particle_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	particle_material.albedo_color = Color.BROWN
+	particle_material.albedo_color.a = 0.8
+	break_particles.process_material = particle_material
+
+# 创建或获取材质
+func _get_or_create_material() -> Material:
+	if box_mesh.material_override:
+		return box_mesh.material_override.duplicate()
+	else:
+		var material = StandardMaterial3D.new()
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		box_mesh.material_override = material
+		return material
+
+# 接收伤害
+func take_damage(damage: float) -> void:
+	if is_destroyed:
+		return
+		
+	health -= damage
+	print("箱子受到", damage, "点伤害，剩余生命：", health)
+	
+	# 检查是否应该被破坏
+	if health <= 0:
+		destroy()
+
+# 破坏箱子
+func destroy() -> void:
+	is_destroyed = true
+	
+	# 播放破坏音效
+	if break_sound and break_sound.stream:
+		break_sound.play()
+	
+	# 播放粒子效果
+	if break_particles:
+		break_particles.global_position = global_position
+		break_particles.emitting = true
+	
+	# 创建补间动画，让箱子逐渐消失
+	var tween = create_tween()
+	tween.set_parallel(true)  # 允许同时播放多个动画
+	tween.tween_property(box_mesh, "scale", Vector3.ZERO, destroy_time)
+	
+	# 通过材质控制透明度
+	var material = _get_or_create_material()
+	tween.tween_property(material, "albedo_color:a", 0.0, destroy_time)
+	
+	# 动画结束后移除箱子
+	tween.tween_callback(_destroy_complete)
+
+# 破坏完成回调
+func _destroy_complete() -> void:
+	# 停止粒子发射
+	if break_particles:
+		break_particles.emitting = false
+	
+	# 移除箱子
+	queue_free()</pre>
+                    </div>
+                </div>
+                
+                <h4>参数调整</h4>
+                <p>在老师提供的参考脚本中，你可以在Inspector面板中调整以下参数：</p>
+                <ul>
+                    <li><strong>箱子参数：</strong>
+                        <ul>
+                            <li><code>Health</code>：箱子生命值（默认为30）</li>
+                            <li><code>Destroy Time</code>：破坏动画时长（默认为0.5秒）</li>
+                        </ul>
+                    </li>
+                    <li><strong>粒子参数：</strong>
+                        <ul>
+                            <li><code>Particle Amount</code>：粒子数量（默认为50）</li>
+                            <li><code>Particle Lifetime</code>：粒子生命周期（默认为1.0秒）</li>
+                            <li><code>Particle Initial Velocity</code>：粒子初始速度（默认为5.0米/秒）</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h4>任务11完成后的场景树结构</h4>
+                <pre><code>Main (Node3D)
+├── WorldEnvironment (环境)
+├── 地形相关节点...
+├── Player (CharacterBody3D)【脚本: player.gd】
+│   └── [Player子节点...]
+└── InteractiveObjects (Node3D)
+    ├── JumpPad (StaticBody3D)【脚本: jump_pad.gd】
+    ├── JumpPad2 (StaticBody3D)【脚本: jump_pad.gd】
+    ├── JumpPad3 (StaticBody3D)【脚本: jump_pad.gd】
+    └── DestructibleBox (StaticBody3D)【脚本: destructible_box.gd】
+        ├── BoxMesh (MeshInstance3D)
+        ├── CollisionShape3D (箱形碰撞体)
+        ├── BreakParticles (GPUParticles3D)
+        └── BreakSound (AudioStreamPlayer3D)</code></pre>
+                
+                <div class="info-box">
+                    <h5>💡 可破坏箱子设计思路</h5>
+                    <ul>
+                        <li><strong>伤害检测</strong>：实现take_damage()方法，接收来自玩家的伤害</li>
+                        <li><strong>破坏效果</strong>：使用粒子系统表示破碎</li>
+                        <li><strong>消失动画</strong>：使用补间动画让箱子逐渐消失</li>
+                        <li><strong>音效反馈</strong>：播放破坏音效增强体验</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h5>🎯 学习重点</h5>
+                    <ul>
+                        <li>StaticBody3D的使用</li>
+                        <li>粒子系统配置</li>
+                        <li>补间动画(Tween)的使用</li>
+                        <li>伤害系统的实现</li>
+                    </ul>
+                </div>
+            </div>
 
         <!-- 导航按钮 -->
         <div class="navigation-buttons">
@@ -1451,7 +2177,10 @@ func _on_jump_pad_exited() -> void:
             { id: 6, name: "任务6：添加死亡检测区域" },
             { id: 7, name: "任务7：创建交互元素节点和跳跃板（基础版）" },
             { id: 8, name: "任务8：解决跳跃板穿模问题" },
-            { id: 9, name: "任务9：创建多个跳跃板" }
+            { id: 9, name: "任务9：创建多个跳跃板" },
+            { id: 10, name: "任务10：实现近战攻击功能" },
+            { id: 10.5, name: "任务10.5：添加攻击可视化效果（可选）" },
+            { id: 11, name: "任务11：创建可破坏的箱子" }
         ];
 
         let currentTask = 1;
@@ -1475,15 +2204,28 @@ func _on_jump_pad_exited() -> void:
         // 更新任务显示
         function updateTaskDisplay() {
             // 隐藏所有任务卡片
-            for (let i = 1; i <= totalTasks; i++) {
-                const taskCard = document.getElementById(`task-${i}`);
+            for (let i = 0; i < tasks.length; i++) {
+                const taskId = tasks[i].id;
+                let taskCardId = `task-${taskId}`;
+                
+                // 特殊处理任务10.5的ID
+                if (taskId === 10.5) {
+                    taskCardId = 'task-10-5';
+                }
+                
+                const taskCard = document.getElementById(taskCardId);
                 if (taskCard) {
                     taskCard.classList.remove('active');
                 }
             }
 
             // 显示当前任务卡片
-            const currentTaskCard = document.getElementById(`task-${currentTask}`);
+            let currentTaskCardId = `task-${currentTask}`;
+            if (currentTask === 10.5) {
+                currentTaskCardId = 'task-10-5';
+            }
+            
+            const currentTaskCard = document.getElementById(currentTaskCardId);
             if (currentTaskCard) {
                 currentTaskCard.classList.add('active');
             }
@@ -1491,7 +2233,10 @@ func _on_jump_pad_exited() -> void:
             // 更新任务名称
             const taskNameElement = document.getElementById('current-task-name');
             if (taskNameElement) {
-                taskNameElement.textContent = tasks[currentTask - 1].name;
+                const currentTaskIndex = tasks.findIndex(t => t.id === currentTask);
+                if (currentTaskIndex !== -1) {
+                    taskNameElement.textContent = tasks[currentTaskIndex].name;
+                }
             }
 
             // 更新按钮状态
@@ -1514,10 +2259,11 @@ func _on_jump_pad_exited() -> void:
                 }
             }
 
-            // 滚动到任务卡片顶部
-            if (currentTaskCard) {
-                currentTaskCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            // 滚动到页面顶部
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
             
             // 保存当前任务到localStorage
             localStorage.setItem('currentTask', currentTask);
@@ -1525,16 +2271,18 @@ func _on_jump_pad_exited() -> void:
 
         // 上一个任务
         function previousTask() {
-            if (currentTask > 1) {
-                currentTask--;
+            const currentIndex = tasks.findIndex(t => t.id === currentTask);
+            if (currentIndex > 0) {
+                currentTask = tasks[currentIndex - 1].id;
                 updateTaskDisplay();
             }
         }
 
         // 下一个任务
         function nextTask() {
-            if (currentTask < totalTasks) {
-                currentTask++;
+            const currentIndex = tasks.findIndex(t => t.id === currentTask);
+            if (currentIndex < tasks.length - 1) {
+                currentTask = tasks[currentIndex + 1].id;
                 updateTaskDisplay();
             }
         }
@@ -1542,11 +2290,13 @@ func _on_jump_pad_exited() -> void:
         // 跳转到指定任务
         function jumpToTask() {
             const input = document.getElementById('task-number-input');
-            const taskNumber = parseInt(input.value, 10);
+            const taskNumber = parseFloat(input.value);
             
-            // 验证输入
-            if (isNaN(taskNumber) || taskNumber < 1 || taskNumber > totalTasks) {
-                alert(`请输入有效的任务编号（1-${totalTasks}）`);
+            // 验证输入：检查是否存在于tasks数组中
+            const validTask = tasks.find(t => t.id === taskNumber);
+            
+            if (!validTask) {
+                alert(`请输入有效的任务编号（1-${totalTasks}，支持10.5）`);
                 return;
             }
             
