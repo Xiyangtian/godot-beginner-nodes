@@ -269,12 +269,18 @@
         }
 
         .nav-btn.complete {
-            background: #2196F3;
+            background: #9e9e9e;
             color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .nav-btn.complete:hover:not(:disabled) {
-            background: #0b7dda;
+            background: #757575;
+        }
+
+        .nav-btn.complete[title] {
+            position: relative;
         }
 
         .back-to-home {
@@ -517,6 +523,11 @@
                 <li>WASD键：控制角色移动</li>
                 <li>空格键：跳跃</li>
             </ul>
+                                            
+            <div class="info-box">
+                <h5>💡 教师提示</h5>
+                <p>另外，也可以参考老师准备的脚本哦：</p>
+            </div>
             
             <div class="script-section">
                 <div class="script-header">
@@ -668,6 +679,11 @@ func _get_camera_oriented_input() -> Vector3:
                 <li>鼠标移动：控制相机视角（上下左右）</li>
                 <li>ESC键：显示/隐藏鼠标光标</li>
             </ul>
+                            
+            <div class="info-box">
+                <h5>💡 教师提示</h5>
+                <p>另外，也可以参考老师准备的脚本哦：</p>
+            </div>
             
             <div class="script-section">
                 <div class="script-header">
@@ -774,7 +790,12 @@ func _process(delta: float) -> void:
                 <li>保存脚本（Ctrl+S或Cmd+S）</li>
                 <li>运行游戏测试（F5），尝试从地形边缘跳下，测试是否正确重置</li>
             </ol>
-            
+                
+            <div class="info-box">
+                <h5>💡 教师提示</h5>
+                <p>另外，也可以参考老师准备的脚本哦：</p>
+            </div>    
+
             <div class="script-section">
                 <div class="script-header">
                     <h4>death_zone.gd 脚本</h4>
@@ -878,6 +899,12 @@ func _reset_player() -> void:
                 <p>操作方法：在场景树中右键点击JumpPad节点，选择"保存分支为场景"，保存位置：弹出的对话框中，选择保存到My文件夹，命名为"jump_pad.tscn"</p>
             </div>
             
+                
+            <div class="info-box">
+                <h5>💡 教师提示</h5>
+                <p>另外，也可以参考老师准备的脚本哦：</p>
+            </div>
+
             <div class="script-section">
                 <div class="script-header">
                     <h4>jump_pad.gd 脚本（基础版）</h4>
@@ -1140,6 +1167,11 @@ func _on_jump_pad_exited() -> void:
                 <li>运行游戏测试（F5），尝试站在跳跃板上按空格键跳跃</li>
             </ol>
             
+            <div class="info-box">
+                <h5>💡 教师提示</h5>
+                <p>另外，也可以参考老师准备的脚本哦：</p>
+            </div>
+
             <div class="script-section">
                 <div class="script-header">
                     <h4>jump_pad.gd 脚本（物理版）</h4>
@@ -1461,6 +1493,11 @@ func _on_jump_pad_exited() -> void:
                     <li>运行游戏测试（F5），尝试使用近战攻击（按E键）</li>
                 </ol>
                 
+                <div class="info-box">
+                    <h5>💡 教师提示</h5>
+                    <p>另外，也可以参考老师准备的脚本哦：</p>
+                </div>
+                
                 <div class="script-section">
                     <div class="script-header">
                         <h4>player-t10.gd 脚本</h4>
@@ -1674,6 +1711,11 @@ func _on_jump_pad_exited() -> void:
                     <li>保存Player场景（Ctrl+S或Cmd+S）</li>
                     <li>运行游戏测试（F5），尝试使用近战攻击（按E键），观察攻击范围的可视化效果</li>
                 </ol>
+                
+                <div class="info-box">
+                    <h5>💡 教师提示</h5>
+                    <p>另外，也可以参考老师准备的脚本哦：</p>
+                </div>
                 
                 <div class="script-section">
                     <div class="script-header">
@@ -1984,11 +2026,10 @@ func _on_jump_pad_exited() -> void:
                     <li>保存Main场景（Ctrl+S或Cmd+S）</li>
                     <li>运行游戏测试（F5），尝试用近战攻击破坏箱子</li>
                 </ol>
-
-                <p> </p>
+                
                 <div class="info-box">
                     <h5>💡 教师提示</h5>
-                    <p>如果遇到困难，可以参考教师准备的完整脚本：</p>
+                    <p>另外，也可以参考老师准备的脚本哦：</p>
                 </div>
                 
                 <div class="script-section">
@@ -2151,6 +2192,625 @@ func _destroy_complete() -> void:
                 </div>
             </div>
 
+        <!-- 任务12：实现破坏箱子后的金币系统 -->
+        <div class="task-card" id="task-12">
+            <h3>任务12：实现破坏箱子后的金币系统</h3>
+            
+            <h4>任务说明</h4>
+            <p>本任务将实现金币系统，当箱子被破坏时生成金币，玩家可以收集金币。你将学习如何使用现有的场景资源，如何实例化场景，以及如何实现简单的UI显示系统。这是游戏中最常见的奖励系统之一。</p>
+            
+            <h4>任务概述</h4>
+            <ul>
+                <li>本任务会使用已有的金币场景资源：<code>res://Player/Coin/Coin.tscn</code></li>
+                <li>金币场景包含完整的物理效果、收集检测和音效系统</li>
+                <li>我们需要修改金币脚本来适配我们的Player类</li>
+                <li>然后添加金币生成、收集计数和UI显示功能</li>
+            </ul>
+            
+            <h4>操作步骤</h4>
+            <ol>
+                <li><strong>准备金币场景（第一步）</strong>
+                    <ul>
+                        <li>在FileSystem中找到并打开<code>res://Player/Coin/Coin.tscn</code>场景</li>
+                        <li>在场景树中选中Coin根节点</li>
+                        <li>在Inspector中找到Script属性</li>
+                        <li>点击脚本旁边的"断开"按钮（或右键选择"Detach Script"）</li>
+                        <li>确认断开脚本</li>
+                        <li>保存Coin场景（Ctrl+S或Cmd+S）</li>
+                    </ul>
+                    <p><strong>说明</strong>：原始金币脚本使用<code>body is Player</code>检测玩家，但我们的Player类名不同，需要创建新脚本</p>
+                </li>
+                
+                <li><strong>创建新的金币脚本</strong>
+                    <ul>
+                        <li>为Coin根节点附加新脚本，命名为"coin.gd"并保存到My文件夹</li>
+                        <li>打开脚本，复制下面的代码并粘贴到脚本中</li>
+                        <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                    </ul>
+                    <p><strong>说明</strong>：金币脚本需要能够检测玩家并调用collect_coin方法</p>
+                </li>
+                
+                <li><strong>更新Player脚本，添加金币计数功能</strong>
+                    <ul>
+                        <li>打开现有的Player脚本（player.gd）</li>
+                        <li>复制下面的代码并添加到现有脚本中</li>
+                        <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                    </ul>
+                    <p><strong>说明</strong>：Player需要提供collect_coin方法供金币脚本调用</p>
+                </li>
+                
+                <li><strong>更新DestructibleBox脚本，添加金币生成功能</strong>
+                    <ul>
+                        <li>打开现有的DestructibleBox脚本（destructible_box.gd）</li>
+                        <li>复制下面的代码并添加到现有脚本中</li>
+                        <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                    </ul>
+                    <p><strong>说明</strong>：箱子破坏时需要实例化金币场景</p>
+                </li>
+                
+                <li><strong>为DestructibleBox设置金币场景资源</strong>
+                    <ul>
+                        <li>在Main场景中选中任意一个DestructibleBox节点</li>
+                        <li>在Inspector中找到Coin Scene属性</li>
+                        <li>点击下拉菜单，选择"res://Player/Coin/Coin.tscn"</li>
+                        <li>如果下拉菜单中没有这个选项，点击旁边的文件夹图标，手动选择文件</li>
+                        <li>保存Main场景（Ctrl+S或Cmd+S）</li>
+                    </ul>
+                </li>
+                
+                <li><strong>创建金币显示UI</strong>
+                    <ul>
+                        <li>在Main场景根节点下创建一个Control节点，命名为"CoinDisplayUI"</li>
+                        <li>在Inspector中设置CoinDisplayUI为全屏布局：
+                            <ul>
+                                <li>找到Anchors Presets属性（在Layout部分）</li>
+                                <li>点击下拉菜单，选择"整个矩形"（Full Rect）</li>
+                            </ul>
+                        </li>
+                        <li><strong>重要</strong>：设置CoinDisplayUI的Mouse Filter属性（关键步骤！）
+                            <ul>
+                                <li>在Inspector中找到Mouse Filter属性</li>
+                                <li>点击下拉菜单，选择"Pass"（让鼠标事件穿透）</li>
+                                <li>这样鼠标移动事件才能传递给CameraController，保持相机控制正常</li>
+                            </ul>
+                        </li>
+                        <li>为CoinDisplayUI添加一个Label子节点，命名为"CoinLabel"</li>
+                        <li>在Inspector中设置CoinLabel的属性：
+                            <ul>
+                                <li>Text：金币：0</li>
+                                <li>Position：左上角（例如：x=20, y=20）</li>
+                                <li>Font Size：24（或根据需要调整）</li>
+                            </ul>
+                        </li>
+                        <li>为CoinDisplayUI附加新脚本，命名为"coin_display_ui.gd"并保存到My文件夹</li>
+                        <li>打开脚本，复制下面的代码并粘贴到脚本中</li>
+                        <li>保存脚本（Ctrl+S或Cmd+S）</li>
+                    </ul>
+                </li>
+                
+                <li><strong>连接Player到CoinDisplayUI</strong>
+                    <ul>
+                        <li>在Main场景中选中CoinDisplayUI节点</li>
+                        <li>在Inspector中找到Player属性</li>
+                        <li>点击下拉菜单，选择Player节点</li>
+                        <li>保存Main场景（Ctrl+S或Cmd+S）</li>
+                    </ul>
+                </li>
+                
+                <li><strong>运行游戏测试</strong>
+                    <ul>
+                        <li>运行游戏（F5）</li>
+                        <li>尝试用近战攻击破坏箱子</li>
+                        <li>观察金币是否生成</li>
+                        <li>走到金币附近，观察金币是否自动飞向玩家</li>
+                        <li>检查UI中的金币数量是否正确更新</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h4>💡 教师提示</h4>
+                
+            <div class="info-box">
+                <h5>💡 教师提示</h5>
+                <p>另外，也可以参考老师准备的脚本哦：</p>
+            </div>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>player.gd 脚本（带金币计数功能）</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task12-player')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task12-player">
+<pre># 任务12：玩家移动和跳跃脚本（支持跳跃板交互、近战攻击、可视化效果和金币系统）
+# 在任务11的基础上添加金币计数功能
+
+class_name PlayerT12
+extends CharacterBody3D
+
+# 移动相关参数
+@export var move_speed := 8.0                    # 角色移动速度
+@export var acceleration := 4.0                  # 移动加速度
+@export var jump_initial_impulse := 12.0         # 初始跳跃力度
+@export var jump_additional_force := 4.5         # 按住跳跃键时的额外跳跃力
+@export var rotation_speed := 12.0               # 角色旋转速度
+@export var stopping_speed := 1.0                # 停止移动的速度阈值
+
+# 近战攻击参数
+@export var melee_damage := 20                    # 近战攻击伤害
+@export var melee_range := 2.0                    # 近战攻击范围
+
+# 可视化参数
+@export var attack_indicator_duration := 0.3        # 攻击范围显示时长
+
+# 物理相关参数
+@export var gravity := -30.0                     # 重力加速度
+
+# 金币系统
+var coin_count := 0                              # 金币数量
+
+# 相机引用（需要在场景中设置）
+@onready var camera: Camera3D = $CameraController/ThirdPersonCamera
+@onready var melee_attack_area: Area3D = $MeleeAttackArea
+@onready var attack_indicator: MeshInstance3D = $MeleeAttackArea/AttackIndicator
+
+# 内部变量
+var _move_direction := Vector3.ZERO              # 当前移动方向
+var _last_strong_direction := Vector3.FORWARD     # 上一次的有效移动方向
+var _is_on_floor_buffer := false                 # 地面检测缓冲
+var _is_on_jump_pad := false                    # 是否在跳跃板上
+var _current_jump_pad: JumpPadT8 = null         # 当前所在的跳跃板引用
+
+func _ready() -> void:
+	# 设置近战攻击区域的范围
+	var collision_shape = melee_attack_area.get_child(0) as CollisionShape3D
+	if collision_shape and collision_shape.shape is SphereShape3D:
+		collision_shape.shape.radius = melee_range
+	elif collision_shape and collision_shape.shape is CapsuleShape3D:
+		collision_shape.shape.height = melee_range * 2
+	
+	# 确保攻击指示器默认隐藏
+	if attack_indicator:
+		attack_indicator.visible = false
+
+func _physics_process(delta: float) -> void:
+	# 更新地面检测缓冲
+	_is_on_floor_buffer = is_on_floor()
+	
+	# 获取输入
+	_move_direction = _get_camera_oriented_input()
+	
+	# 保存上一次的有效移动方向，用于角色朝向
+	if _move_direction.length() > 0.2:
+		_last_strong_direction = _move_direction.normalized()
+	
+	# 分离Y轴速度，避免重力影响水平移动插值
+	var y_velocity := velocity.y
+	velocity.y = 0.0
+	
+	# 使用插值实现平滑的移动加速
+	velocity = velocity.lerp(_move_direction * move_speed, acceleration * delta)
+	
+	# 如果停止移动且速度很小，直接停止
+	if _move_direction.length() == 0 and velocity.length() < stopping_speed:
+		velocity = Vector3.ZERO
+	
+	# 恢复Y轴速度
+	velocity.y = y_velocity
+	
+	# 应用重力
+	velocity.y += gravity * delta
+	
+	# 处理跳跃
+	var is_just_jumping := Input.is_action_just_pressed("jump") and is_on_floor()
+	var is_air_boosting := Input.is_action_pressed("jump") and not is_on_floor() and velocity.y > 0.0
+	
+	if is_just_jumping:
+		# 如果在跳跃板上，使用增强跳跃
+		if _is_on_jump_pad and _current_jump_pad:
+			# 从跳跃板获取增强倍数
+			var boost_multiplier = _current_jump_pad.boost_multiplier
+			velocity.y += jump_initial_impulse * boost_multiplier
+			print("跳跃板增强跳跃！力度：", jump_initial_impulse * boost_multiplier)
+		else:
+			velocity.y += jump_initial_impulse
+	elif is_air_boosting:
+		velocity.y += jump_additional_force * delta
+	
+	# 执行实际移动
+	move_and_slide()
+
+func _process(_delta: float) -> void:
+	# 处理近战攻击
+	if Input.is_action_just_pressed("attack"):
+		perform_melee_attack()
+	
+	# 处理跳跃板交互
+	_handle_jump_pad_interaction()
+	
+	# 更新朝向
+	_update_facing_direction()
+
+# 执行近战攻击
+func perform_melee_attack() -> void:
+	# 显示攻击范围指示器
+	_show_attack_indicator()
+	
+	# 获取攻击区域内的所有物体
+	var bodies = melee_attack_area.get_overlapping_bodies()
+	
+	for body in bodies:
+		# 检查是否是DestructibleBox
+		if body.has_method("take_damage"):
+			body.take_damage(melee_damage)
+			print("对箱子造成", melee_damage, "点伤害！")
+
+# 显示攻击范围指示器
+func _show_attack_indicator() -> void:
+	if attack_indicator:
+		attack_indicator.visible = true
+		
+		# 创建补间动画
+		var tween = create_tween()
+		tween.tween_property(attack_indicator, "visible", false, attack_indicator_duration)
+
+# 处理跳跃板交互
+func _handle_jump_pad_interaction() -> void:
+	if _is_on_jump_pad and _current_jump_pad:
+		# 检查是否跳离了跳跃板
+		if not _current_jump_pad.get_parent().is_in_group("jump_pads"):
+			_is_on_jump_pad = false
+			_current_jump_pad = null
+
+# 更新角色朝向
+func _update_facing_direction() -> void:
+	if _move_direction.length() > 0.2:
+		# 创建目标旋转
+		var target_basis = Basis.looking_at(_move_direction.normalized(), Vector3.UP)
+		var target_quat = target_basis.get_rotation_quaternion()
+		
+		# 使用slerp实现平滑旋转
+		transform.basis = transform.basis.slerp(target_basis, _rotation_speed * _delta)
+
+# 获取相机方向的输入
+func _get_camera_oriented_input() -> Vector3:
+	var raw_input := Vector3.ZERO
+	
+	# 获取输入
+	if Input.is_action_pressed("move_up"):
+		raw_input.y -= 1
+	if Input.is_action_pressed("move_down"):
+		raw_input.y += 1
+	if Input.is_action_pressed("move_left"):
+		raw_input.x -= 1
+	if Input.is_action_pressed("move_right"):
+		raw_input.x += 1
+	
+	var input := Vector3.ZERO
+	# 确保对角线移动不会比轴向移动更快
+	input.x = raw_input.x * sqrt(1.0 - raw_input.y * raw_input.y / 2.0)
+	input.z = raw_input.y * sqrt(1.0 - raw_input.x * raw_input.x / 2.0)
+	
+	# 根据相机方向转换输入
+	input = camera.global_transform.basis * input
+	input.y = 0.0
+	return input.normalized()
+
+# 金币收集方法（供金币脚本调用）
+func collect_coin() -> void:
+	coin_count += 1
+	print("收集到金币！当前金币：", coin_count)</pre>
+                </div>
+            </div>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>destructible_box.gd 脚本（带金币生成功能）</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task12-box')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task12-box">
+<pre># 任务12：可破坏箱子脚本（支持金币生成）
+# 在任务11的基础上添加金币生成功能
+
+class_name DestructibleBoxT12
+extends StaticBody3D
+
+# 箱子参数
+@export var health := 30.0                       # 箱子生命值
+@export var destroy_time := 0.5                    # 破坏动画时长
+
+# 粒子参数
+@export var particle_amount := 50                    # 粒子数量
+@export var particle_lifetime := 1.0                   # 粒子生命周期
+@export var particle_initial_velocity := 5.0            # 粒子初始速度
+
+# 金币参数
+@export var coin_scene: PackedScene               # 金币场景资源
+
+# 内部变量
+var is_destroyed := false                         # 是否已被破坏
+
+# 节点引用
+@onready var break_particles: GPUParticles3D = $BreakParticles
+@onready var break_sound: AudioStreamPlayer3D = $BreakSound
+@onready var box_mesh: MeshInstance3D = $BoxMesh
+
+func _ready() -> void:
+	# 配置粒子系统
+	_configure_particles()
+
+# 配置粒子系统
+func _configure_particles() -> void:
+	# 设置粒子发射
+	break_particles.emitting = false
+	break_particles.amount = particle_amount
+	break_particles.lifetime = particle_lifetime
+	
+	# 设置粒子材质
+	var particle_material = StandardMaterial3D.new()
+	particle_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	particle_material.albedo_color = Color.BROWN
+	particle_material.albedo_color.a = 0.8
+	break_particles.process_material = particle_material
+
+# 创建或获取材质
+func _get_or_create_material() -> Material:
+	if box_mesh.material_override:
+		return box_mesh.material_override.duplicate()
+	else:
+		var material = StandardMaterial3D.new()
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		box_mesh.material_override = material
+		return material
+
+# 接收伤害
+func take_damage(damage: float) -> void:
+	if is_destroyed:
+		return
+		
+	health -= damage
+	print("箱子受到", damage, "点伤害，剩余生命：", health)
+	
+	# 检查是否应该被破坏
+	if health <= 0:
+		destroy()
+
+# 破坏箱子
+func destroy() -> void:
+	is_destroyed = true
+	
+	# 播放破坏音效
+	if break_sound and break_sound.stream:
+		break_sound.play()
+	
+	# 播放粒子效果
+	if break_particles:
+		break_particles.global_position = global_position
+		break_particles.emitting = true
+	
+	# 生成金币
+	_spawn_coin()
+	
+	# 创建补间动画，让箱子逐渐消失
+	var tween = create_tween()
+	tween.set_parallel(true)  # 允许同时播放多个动画
+	tween.tween_property(box_mesh, "scale", Vector3.ZERO, destroy_time)
+	
+	# 通过材质控制透明度
+	var material = _get_or_create_material()
+	tween.tween_property(material, "albedo_color:a", 0.0, destroy_time)
+	
+	# 动画结束后移除箱子
+	tween.tween_callback(_destroy_complete)
+
+# 生成金币
+func _spawn_coin() -> void:
+	if not coin_scene:
+		print("警告：未设置金币场景资源")
+		return
+	
+	# 在箱子位置生成金币
+	var coin = coin_scene.instantiate() as RigidBody3D
+	if not coin:
+		print("警告：金币场景不是RigidBody3D类型")
+		return
+	
+	# 将金币添加到场景中
+	get_tree().current_scene.add_child(coin)
+	
+	# 设置金币位置为箱子位置
+	coin.global_position = global_position
+	
+	# 调用金币的spawn方法
+	if coin.has_method("spawn"):
+		coin.spawn(0.5)
+		print("金币已生成！")
+	else:
+		print("警告：金币没有spawn方法")
+
+# 破坏完成回调
+func _destroy_complete() -> void:
+	# 停止粒子发射
+	if break_particles:
+		break_particles.emitting = false
+	
+	# 移除箱子
+	queue_free()</pre>
+                </div>
+            </div>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>coin.gd 脚本（修改版）</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task12-coin')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task12-coin">
+<pre># 任务12：金币脚本（修改版，支持教学项目）
+# 原始金币脚本的修改版本，支持PlayerT12类
+
+class_name CoinT12
+extends RigidBody3D
+
+const MIN_LAUNCH_RANGE := 2.0
+const MAX_LAUNCH_RANGE := 4.0
+const MIN_LAUNCH_HEIGHT := 1.0
+const MAX_LAUNCH_HEIGHT := 3.0
+
+const SPAWN_TWEEN_DURATION := 1.0
+const FOLLOW_TWEEN_DURATION := 0.5
+
+@onready var _collect_audio: AudioStreamPlayer3D = $CollectAudio
+@onready var _player_detection_area: Area3D = $PlayerDetectionArea
+@onready var _initial_tween_position := Vector3.ZERO
+@onready var _target: Node3D = null
+
+
+func spawn(coin_delay: float = 0.5) -> void:
+	var rand_height := MIN_LAUNCH_HEIGHT + (randf() * MAX_LAUNCH_HEIGHT)
+	var rand_dir := Vector3.FORWARD.rotated(Vector3.UP, randf() * 2 * PI)
+	var rand_pos := rand_dir * (MIN_LAUNCH_RANGE + (randf() * MAX_LAUNCH_RANGE))
+	rand_pos.y = rand_height
+	apply_central_impulse(rand_pos)
+
+	# Delay time for player to be able to collect it
+	get_tree().create_timer(coin_delay).timeout.connect(set_collision_layer_value.bind(3, true))
+	_player_detection_area.body_entered.connect(_on_body_entered)
+
+
+func set_target(new_target: PhysicsBody3D) -> void:
+	PhysicsServer3D.body_add_collision_exception(get_rid(), new_target.get_rid())
+
+	if _target == null:
+		sleeping = true
+		freeze = true
+
+		_initial_tween_position = global_position
+		_target = new_target
+		var tween := create_tween()
+		tween.tween_method(_follow, 0.0, 1.0, 0.5)
+		tween.tween_callback(_collect)
+
+
+func _follow(offset: float) -> void:
+	global_position = lerp(_initial_tween_position, _target.global_position, offset)
+
+
+func _on_body_entered(body: PhysicsBody3D) -> void:
+	# 修改：检查是否有collect_coin方法，而不是检查类名
+	if body.has_method("collect_coin"):
+		set_target(body)
+
+
+func _collect() -> void:
+	_collect_audio.pitch_scale = randfn(1.0, 0.1)
+	_collect_audio.play()
+	_target.collect_coin()
+	hide()
+	await _collect_audio.finished
+	queue_free()</pre>
+                </div>
+            </div>
+            
+            <div class="script-section">
+                <div class="script-header">
+                    <h4>coin_display_ui.gd 脚本</h4>
+                    <button class="copy-btn" onclick="copyScript('script-task12-ui')">复制脚本</button>
+                </div>
+                <div class="script-content" id="script-task12-ui">
+<pre># 任务12：金币显示UI脚本
+# 显示玩家收集的金币数量
+
+class_name CoinDisplayUI
+extends Control
+
+# 金币数量标签
+@onready var coin_label: Label = $CoinLabel
+
+# 玩家引用（需要在场景中设置）
+@export var player: Node3D
+
+func _ready() -> void:
+	# 初始化显示
+	_update_display()
+
+# 更新金币显示
+func _update_display() -> void:
+	if player:
+		# 检查玩家是否有coin_count属性
+		if "coin_count" in player:
+			coin_label.text = "金币：" + str(player.coin_count)
+		else:
+			coin_label.text = "金币：0"
+	else:
+		coin_label.text = "金币：0"
+
+# 每帧更新显示（确保实时显示金币数量）
+func _process(_delta: float) -> void:
+	_update_display()</pre>
+                </div>
+            </div>
+            
+            <h4>重要说明</h4>
+            <div class="warning-box">
+                <h5>⚠️ 注意事项</h5>
+                <ul>
+                    <li>原始的Coin.gd脚本使用<code>body is Player</code>来检测玩家，但我们的Player类名是<code>PlayerT12</code>，所以需要创建新的金币脚本</li>
+                    <li>新的金币脚本使用<code>body.has_method("collect_coin")</code>来检测玩家，这样更通用</li>
+                    <li>增加CoinDisplayUI节点后，如果发现无法控制相机视角，请检查CoinDisplayUI节点的Mouse Filter属性是否设置为"Pass"（让鼠标事件穿透）</li>
+                </ul>
+            </div>
+            
+            <h4>参数调整</h4>
+            <p>在可破坏箱子脚本中，你可以在Inspector面板中调整以下参数：</p>
+            <ul>
+                <li><code>Coin Scene</code>：金币场景资源（必须设置为res://Player/Coin/Coin.tscn）</li>
+            </ul>
+            
+            <p>在金币显示UI脚本中，你可以在Inspector面板中调整以下参数：</p>
+            <ul>
+                <li><code>Player</code>：玩家节点引用（必须设置为Player节点）</li>
+            </ul>
+            
+            <h4>任务12完成后的场景树结构</h4>
+            <pre><code>Main (Node3D)
+├── WorldEnvironment (环境)
+├── 地形相关节点...
+├── Player (CharacterBody3D)【脚本: player.gd !!!更新】
+│   └── [Player子节点...]
+├── CoinDisplayUI (Control)【脚本: coin_display_ui.gd】
+│   └── CoinLabel (Label)
+└── InteractiveObjects (Node3D)
+    ├── JumpPad (StaticBody3D)【脚本: jump_pad.gd】
+    ├── JumpPad2 (StaticBody3D)【脚本: jump_pad.gd】
+    ├── JumpPad3 (StaticBody3D)【脚本: jump_pad.gd】
+    └── DestructibleBox (StaticBody3D)【脚本: destructible_box.gd !!!更新】
+        ├── BoxMesh (MeshInstance3D)
+        ├── CollisionShape3D (箱形碰撞体)
+        ├── BreakParticles (GPUParticles3D)
+        └── BreakSound (AudioStreamPlayer3D)</code></pre>
+            
+            <div class="info-box">
+                <h5>💡 金币系统设计思路</h5>
+                <ul>
+                    <li><strong>金币生成</strong>：箱子破坏时实例化金币场景</li>
+                    <li><strong>物理效果</strong>：金币使用RigidBody3D，有真实的物理效果</li>
+                    <li><strong>自动收集</strong>：金币检测玩家进入范围后自动飞向玩家</li>
+                    <li><strong>UI显示</strong>：实时显示金币数量</li>
+                </ul>
+            </div>
+            
+            <div class="success-box">
+                <h5>🎯 学习重点</h5>
+                <ul>
+                    <li>场景实例化（instantiate）</li>
+                    <li>使用现有的预制场景资源</li>
+                    <li>UI系统的基本使用</li>
+                    <li>节点引用的设置方法</li>
+                    <li>实时数据更新和显示</li>
+                </ul>
+            </div>
+
+        </div>
+
         <!-- 导航按钮 -->
         <div class="navigation-buttons">
             <button class="nav-btn prev" id="prev-btn" onclick="previousTask()" disabled>上一个任务</button>
@@ -2180,11 +2840,13 @@ func _destroy_complete() -> void:
             { id: 9, name: "任务9：创建多个跳跃板" },
             { id: 10, name: "任务10：实现近战攻击功能" },
             { id: 10.5, name: "任务10.5：添加攻击可视化效果（可选）" },
-            { id: 11, name: "任务11：创建可破坏的箱子" }
+            { id: 11, name: "任务11：创建可破坏的箱子" },
+            { id: 12, name: "任务12：实现破坏箱子后的金币系统" }
         ];
 
         let currentTask = 1;
         const totalTasks = tasks.length;
+        const lastTaskId = tasks[tasks.length - 1].id; // 最后一个任务的ID
 
         // 初始化
         function init() {
@@ -2248,14 +2910,16 @@ func _destroy_complete() -> void:
             }
             
             if (nextBtn) {
-                if (currentTask === totalTasks) {
+                if (currentTask === lastTaskId) {
                     nextBtn.textContent = '自己探索一下吧';
                     nextBtn.classList.add('complete');
                     nextBtn.disabled = true;
+                    nextBtn.title = '自己探索一下'; // 悬浮提示
                 } else {
                     nextBtn.textContent = '下一个任务';
                     nextBtn.classList.remove('complete');
                     nextBtn.disabled = false;
+                    nextBtn.title = ''; // 清除悬浮提示
                 }
             }
 
