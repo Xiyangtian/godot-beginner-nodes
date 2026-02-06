@@ -458,8 +458,9 @@
                             <thead>
                                 <tr>
                                     <th>节点类型</th>
-                                    <th>是否可移动</th>
-                                    <th>是否响应物理力</th>
+                                    <th>移动方式</th>
+                                    <th>物理响应</th>
+                                    <th>对其他物体的影响</th>
                                     <th>主要用途</th>
                                     <th>典型场景</th>
                                 </tr>
@@ -469,20 +470,23 @@
                                     <td><strong>CharacterBody3D</strong></td>
                                     <td>✅ 代码控制移动</td>
                                     <td>❌ 不响应重力等物理力</td>
+                                    <td>✅ 会推开其他物理物体</td>
                                     <td>角色控制器</td>
                                     <td>玩家角色、NPC、敌人</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Area3D</strong></td>
-                                    <td>❌ 位置固定</td>
+                                    <td>✅ 可被代码移动</td>
                                     <td>❌ 无物理反应</td>
+                                    <td>❌ 不影响其他物体</td>
                                     <td>区域检测</td>
-                                    <td>拾取物、陷阱、传送门</td>
+                                    <td>拾取物、陷阱、触发器</td>
                                 </tr>
                                 <tr>
                                     <td><strong>StaticBody3D</strong></td>
-                                    <td>❌ 完全静态</td>
-                                    <td>❌ 无物理反应</td>
+                                    <td>⚠️ 可被代码/动画移动</td>
+                                    <td>❌ 不响应外力</td>
+                                    <td>✅ 阻挡其他物体（碰撞检测）</td>
                                     <td>静态障碍物</td>
                                     <td>墙壁、地板、建筑</td>
                                 </tr>
